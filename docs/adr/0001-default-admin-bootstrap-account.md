@@ -1,0 +1,3 @@
+# Compte Administrateur créé automatiquement à l'installation
+
+Les comptes Utilisateur sont créés exclusivement par un Administrateur — il n'existe pas d'auto-inscription. Ce modèle pose un problème d'amorçage : au tout premier démarrage, aucun compte n'existe encore pour créer les autres. Nous avons décidé qu'à l'installation, l'application crée automatiquement un compte Administrateur avec le login `admin` et le mot de passe `admin`, et impose un changement de mot de passe à la première connexion. La même règle de mot de passe temporaire (identique au login) s'applique ensuite à tout nouveau compte Utilisateur créé par un Administrateur.
