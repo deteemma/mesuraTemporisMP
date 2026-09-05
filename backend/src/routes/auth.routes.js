@@ -4,18 +4,9 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/auth');
 const Utilisateur = require('../models/Utilisateur');
 const { authentifier } = require('../middleware/auth');
+const { toPublicUtilisateur } = require('../serializers');
 
 const router = express.Router();
-
-function toPublicUtilisateur(utilisateur) {
-  return {
-    id: utilisateur._id,
-    login: utilisateur.login,
-    nom: utilisateur.nom,
-    role: utilisateur.role,
-    doitChangerMotDePasse: utilisateur.doitChangerMotDePasse,
-  };
-}
 
 router.post('/login', async (req, res) => {
   const { login, motDePasse } = req.body;

@@ -1,44 +1,34 @@
 const express = require('express');
 const Imputation = require('../models/Imputation');
-const Projet = require('../models/Projet');
 const Activite = require('../models/Activite');
-const { estAffecte } = require('../middleware/projetAccess');
+const { verifierAccesProjet, verifierAccesActivite } = require('../middleware/projetAccess');
+const { chargerOuNotFound } = require('../utils/chargerOuNotFound');
+const { estAdministrateur } = require('../utils/roles');
+const { memeId } = require('../utils/mongoId');
+const { toPublicImputation } = require('../serializers');
 
 const router = express.Router();
 
-function toPublicImputation(imputation) {
-  return {
-    id: imputation._id,
-    utilisateurId: imputation.utilisateurId,
-    projetId: imputation.projetId,
-    activiteId: imputation.activiteId,
-    heureDebut: imputation.heureDebut,
-    heureFin: imputation.heureFin,
-  };
-}
-
-async function verifierAccesProjetEtActivite(req, res, projetId, activiteId) {
-  const projet = await Projet.findById(projetId);
-  if (!projet) {
-    res.status(404).json({ message: 'Projet introuvable' });
-    return null;
-  }
-
-  const estAdmin = req.utilisateur.role === 'administrateur';
-  if (!estAdmin && !estAffecte(projet, req.utilisateur._id)) {
-    res.status(403).json({ message: "Vous n'êtes pas affecté à ce Projet" });
+async function chargerProjetEtActivite(req, res, projetId, activiteId) {
+  const { projet, erreur } = await verifierAccesProjet(projetId, req.utilisateur);
+  if (erreur) {
+    res.status(erreur.statut).json({ message: erreur.message });
     return null;
   }
 
   if (activiteId) {
-    const activite = await Activite.findOne({ _id: activiteId, projetId });
-    if (!activite) {
-      res.status(404).json({ message: 'Activité introuvable pour ce Projet' });
+    const { erreur: erreurActivite } = await verifierAccesActivite(projet, activiteId);
+    if (erreurActivite) {
+      res.status(erreurActivite.statut).json({ message: erreurActivite.message });
       return null;
     }
   }
 
   return projet;
+}
+
+function estProprietaireOuAdmin(req, imputation) {
+  return estAdministrateur(req.utilisateur) || memeId(imputation.utilisateurId, req.utilisateur._id);
 }
 
 router.get('/chrono/status', async (req, res) => {
@@ -60,24 +50,12 @@ router.post('/chrono/start', async (req, res) => {
     return res.status(409).json({ message: 'Un chronomètre est déjà actif' });
   }
 
-  const projet = await Projet.findById(projetId);
-  if (!projet) {
-    return res.status(404).json({ message: 'Projet introuvable' });
-  }
-  const estAdmin = req.utilisateur.role === 'administrateur';
-  if (!estAdmin && !estAffecte(projet, req.utilisateur._id)) {
-    return res.status(403).json({ message: "Vous n'êtes pas affecté à ce Projet" });
-  }
+  const projet = await chargerProjetEtActivite(req, res, projetId, nomNouvelleActivite ? null : activiteId);
+  if (!projet) return;
 
-  let activite;
-  if (nomNouvelleActivite) {
-    activite = await Activite.create({ nom: nomNouvelleActivite, projetId: projet._id });
-  } else {
-    activite = await Activite.findOne({ _id: activiteId, projetId: projet._id });
-    if (!activite) {
-      return res.status(404).json({ message: 'Activité introuvable pour ce Projet' });
-    }
-  }
+  const activite = nomNouvelleActivite
+    ? await Activite.create({ nom: nomNouvelleActivite, projetId: projet._id })
+    : await Activite.findOne({ _id: activiteId, projetId: projet._id });
 
   const imputation = await Imputation.create({
     utilisateurId: req.utilisateur._id,
@@ -111,7 +89,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ message: 'projetId, activiteId, heureDebut et heureFin sont requis' });
   }
 
-  const projet = await verifierAccesProjetEtActivite(req, res, projetId, activiteId);
+  const projet = await chargerProjetEtActivite(req, res, projetId, activiteId);
   if (!projet) return;
 
   const imputation = await Imputation.create({
@@ -138,14 +116,10 @@ router.get('/', async (req, res) => {
 });
 
 router.patch('/:id', async (req, res) => {
-  const imputation = await Imputation.findById(req.params.id);
-  if (!imputation) {
-    return res.status(404).json({ message: 'Imputation introuvable' });
-  }
+  const imputation = await chargerOuNotFound(Imputation, req.params.id, res, 'Imputation introuvable');
+  if (!imputation) return;
 
-  const estAdmin = req.utilisateur.role === 'administrateur';
-  const estProprietaire = imputation.utilisateurId.toString() === req.utilisateur._id.toString();
-  if (!estAdmin && !estProprietaire) {
+  if (!estProprietaireOuAdmin(req, imputation)) {
     return res.status(403).json({ message: 'Accès refusé' });
   }
 
@@ -161,14 +135,10 @@ router.patch('/:id', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
-  const imputation = await Imputation.findById(req.params.id);
-  if (!imputation) {
-    return res.status(404).json({ message: 'Imputation introuvable' });
-  }
+  const imputation = await chargerOuNotFound(Imputation, req.params.id, res, 'Imputation introuvable');
+  if (!imputation) return;
 
-  const estAdmin = req.utilisateur.role === 'administrateur';
-  const estProprietaire = imputation.utilisateurId.toString() === req.utilisateur._id.toString();
-  if (!estAdmin && !estProprietaire) {
+  if (!estProprietaireOuAdmin(req, imputation)) {
     return res.status(403).json({ message: 'Accès refusé' });
   }
 

@@ -3,18 +3,10 @@ const bcrypt = require('bcryptjs');
 const Utilisateur = require('../models/Utilisateur');
 const { supprimerUtilisateurEnCascade } = require('../services/cascade');
 const { exigerRole } = require('../middleware/auth');
+const { chargerOuNotFound } = require('../utils/chargerOuNotFound');
+const { toPublicUtilisateur } = require('../serializers');
 
 const router = express.Router();
-
-function toPublicUtilisateur(utilisateur) {
-  return {
-    id: utilisateur._id,
-    login: utilisateur.login,
-    nom: utilisateur.nom,
-    role: utilisateur.role,
-    doitChangerMotDePasse: utilisateur.doitChangerMotDePasse,
-  };
-}
 
 router.get('/', exigerRole('administrateur'), async (req, res) => {
   const utilisateurs = await Utilisateur.find();
@@ -45,10 +37,8 @@ router.post('/', exigerRole('administrateur'), async (req, res) => {
 });
 
 router.delete('/:id', exigerRole('administrateur'), async (req, res) => {
-  const utilisateur = await Utilisateur.findById(req.params.id);
-  if (!utilisateur) {
-    return res.status(404).json({ message: 'Utilisateur introuvable' });
-  }
+  const utilisateur = await chargerOuNotFound(Utilisateur, req.params.id, res, 'Utilisateur introuvable');
+  if (!utilisateur) return;
 
   await supprimerUtilisateurEnCascade(utilisateur._id);
   res.status(204).send();

@@ -3,12 +3,9 @@ const Activite = require('../models/Activite');
 const { supprimerActiviteEnCascade } = require('../services/cascade');
 const { exigerRole } = require('../middleware/auth');
 const { chargerProjetEtVerifierAcces } = require('../middleware/projetAccess');
+const { toPublicActivite } = require('../serializers');
 
 const router = express.Router({ mergeParams: true });
-
-function toPublicActivite(activite) {
-  return { id: activite._id, nom: activite.nom, projetId: activite.projetId };
-}
 
 router.get('/', chargerProjetEtVerifierAcces(), async (req, res) => {
   const activites = await Activite.find({ projetId: req.projet._id });

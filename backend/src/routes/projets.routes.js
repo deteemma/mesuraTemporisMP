@@ -4,21 +4,15 @@ const Utilisateur = require('../models/Utilisateur');
 const { supprimerProjetEnCascade } = require('../services/cascade');
 const { exigerRole } = require('../middleware/auth');
 const { chargerProjetEtVerifierAcces } = require('../middleware/projetAccess');
+const { chargerOuNotFound } = require('../utils/chargerOuNotFound');
+const { estAdministrateur } = require('../utils/roles');
+const { memeId } = require('../utils/mongoId');
+const { toPublicProjet } = require('../serializers');
 
 const router = express.Router();
 
-function toPublicProjet(projet) {
-  return {
-    id: projet._id,
-    nom: projet.nom,
-    statut: projet.statut,
-    utilisateursAffectes: projet.utilisateursAffectes,
-  };
-}
-
 router.get('/', async (req, res) => {
-  const estAdmin = req.utilisateur.role === 'administrateur';
-  const filtre = estAdmin ? {} : { utilisateursAffectes: req.utilisateur._id };
+  const filtre = estAdministrateur(req.utilisateur) ? {} : { utilisateursAffectes: req.utilisateur._id };
   const projets = await Projet.find(filtre);
   res.json(projets.map(toPublicProjet));
 });
@@ -38,28 +32,22 @@ router.post('/', exigerRole('administrateur'), async (req, res) => {
 });
 
 router.delete('/:projetId', exigerRole('administrateur'), async (req, res) => {
-  const projet = await Projet.findById(req.params.projetId);
-  if (!projet) {
-    return res.status(404).json({ message: 'Projet introuvable' });
-  }
+  const projet = await chargerOuNotFound(Projet, req.params.projetId, res, 'Projet introuvable');
+  if (!projet) return;
 
   await supprimerProjetEnCascade(projet._id);
   res.status(204).send();
 });
 
 router.post('/:projetId/utilisateurs', exigerRole('administrateur'), async (req, res) => {
-  const projet = await Projet.findById(req.params.projetId);
-  if (!projet) {
-    return res.status(404).json({ message: 'Projet introuvable' });
-  }
+  const projet = await chargerOuNotFound(Projet, req.params.projetId, res, 'Projet introuvable');
+  if (!projet) return;
 
   const { utilisateurId } = req.body;
-  const utilisateur = await Utilisateur.findById(utilisateurId);
-  if (!utilisateur) {
-    return res.status(404).json({ message: 'Utilisateur introuvable' });
-  }
+  const utilisateur = await chargerOuNotFound(Utilisateur, utilisateurId, res, 'Utilisateur introuvable');
+  if (!utilisateur) return;
 
-  const dejaAffecte = projet.utilisateursAffectes.some((id) => id.toString() === utilisateurId);
+  const dejaAffecte = projet.utilisateursAffectes.some((id) => memeId(id, utilisateurId));
   if (!dejaAffecte) {
     projet.utilisateursAffectes.push(utilisateur._id);
     await projet.save();
@@ -69,13 +57,11 @@ router.post('/:projetId/utilisateurs', exigerRole('administrateur'), async (req,
 });
 
 router.delete('/:projetId/utilisateurs/:utilisateurId', exigerRole('administrateur'), async (req, res) => {
-  const projet = await Projet.findById(req.params.projetId);
-  if (!projet) {
-    return res.status(404).json({ message: 'Projet introuvable' });
-  }
+  const projet = await chargerOuNotFound(Projet, req.params.projetId, res, 'Projet introuvable');
+  if (!projet) return;
 
   projet.utilisateursAffectes = projet.utilisateursAffectes.filter(
-    (id) => id.toString() !== req.params.utilisateurId,
+    (id) => !memeId(id, req.params.utilisateurId),
   );
   await projet.save();
 
