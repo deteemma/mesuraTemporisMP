@@ -1,0 +1,40 @@
+<h1>Rapport</h1>
+
+<form (ngSubmit)="genererRapport()">
+  <label>
+    Du
+    <input type="date" [(ngModel)]="dateDebut" name="dateDebut" data-testid="date-debut" />
+  </label>
+  <label>
+    Au
+    <input type="date" [(ngModel)]="dateFin" name="dateFin" data-testid="date-fin" />
+  </label>
+  <button type="submit" data-testid="generer-rapport">Générer</button>
+  <button type="button" (click)="exporter()" data-testid="exporter-excel">Exporter en Excel</button>
+</form>
+
+@if (rapport) {
+  <table>
+    <thead>
+      <tr>
+        <th>Utilisateur</th>
+        <th>Projet</th>
+        <th>Activité</th>
+        <th>Journée</th>
+        <th>Durée (min)</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (ligne of rapport.lignes; track ligne.utilisateurId + ligne.projetId + ligne.activiteId + ligne.journee) {
+        <tr data-testid="rapport-ligne">
+          <td>{{ ligne.utilisateurLogin }}</td>
+          <td>{{ ligne.projetNom }}</td>
+          <td>{{ ligne.activiteNom }}</td>
+          <td>{{ ligne.journee }}</td>
+          <td>{{ ligne.dureeMinutes }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  <p data-testid="rapport-total">Total : {{ rapport.totalMinutes }} min</p>
+}

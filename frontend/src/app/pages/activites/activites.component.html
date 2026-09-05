@@ -1,0 +1,17 @@
+<h1>Activités du Projet</h1>
+
+<form (ngSubmit)="creer()">
+  <input name="nouveauNomActivite" [(ngModel)]="nouveauNomActivite" placeholder="Nom de l'Activité" required data-testid="nouveau-nom-activite" />
+  <button type="submit" data-testid="creer-activite">Créer</button>
+</form>
+
+<ul>
+  @for (activite of activites; track activite.id) {
+    <li data-testid="activite">
+      {{ activite.nom }}
+      <input [(ngModel)]="renommageEnCours[activite.id]" [name]="'renommer-' + activite.id" data-testid="renommer-champ" />
+      <button (click)="renommer(activite.id)" data-testid="renommer-activite">Renommer</button>
+      <button (click)="supprimer(activite.id)" data-testid="supprimer-activite">Supprimer</button>
+    </li>
+  }
+</ul>

@@ -1,0 +1,36 @@
+<h1>Projets</h1>
+
+@if (authService.utilisateurCourant()?.role === 'administrateur') {
+  <form (ngSubmit)="creer()">
+    <input name="nouveauNomProjet" [(ngModel)]="nouveauNomProjet" placeholder="Nom du Projet" required data-testid="nouveau-nom-projet" />
+    <button type="submit" data-testid="creer-projet">Créer</button>
+  </form>
+}
+
+<ul>
+  @for (projet of projets; track projet.id) {
+    <li data-testid="projet">
+      <strong>{{ projet.nom }}</strong> ({{ projet.statut }})
+
+      @if (authService.utilisateurCourant()?.role === 'administrateur') {
+        <button (click)="supprimer(projet.id)" data-testid="supprimer-projet">Supprimer</button>
+
+        <ul>
+          @for (utilisateurId of projet.utilisateursAffectes; track utilisateurId) {
+            <li>
+              {{ nomUtilisateur(utilisateurId) }}
+              <button (click)="retirer(projet.id, utilisateurId)" data-testid="retirer-utilisateur">Retirer</button>
+            </li>
+          }
+        </ul>
+
+        <select [(ngModel)]="affectationChoisie[projet.id]" [name]="'affectation-' + projet.id" data-testid="choix-utilisateur">
+          @for (utilisateur of utilisateurs; track utilisateur.id) {
+            <option [value]="utilisateur.id">{{ utilisateur.login }}</option>
+          }
+        </select>
+        <button (click)="affecter(projet.id)" data-testid="affecter-utilisateur">Affecter</button>
+      }
+    </li>
+  }
+</ul>

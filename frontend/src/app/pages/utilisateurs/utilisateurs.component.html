@@ -1,0 +1,16 @@
+<h1>Utilisateurs</h1>
+
+<form (ngSubmit)="creer()">
+  <input name="nouveauLogin" [(ngModel)]="nouveauLogin" placeholder="Login" required data-testid="nouveau-login" />
+  <input name="nouveauNom" [(ngModel)]="nouveauNom" placeholder="Nom" data-testid="nouveau-nom" />
+  <button type="submit" data-testid="creer">Créer</button>
+</form>
+
+<ul>
+  @for (utilisateur of utilisateurs; track utilisateur.id) {
+    <li data-testid="utilisateur">
+      {{ utilisateur.login }} — {{ utilisateur.nom }} ({{ utilisateur.role }})
+      <button (click)="supprimer(utilisateur.id)" data-testid="supprimer">Supprimer</button>
+    </li>
+  }
+</ul>

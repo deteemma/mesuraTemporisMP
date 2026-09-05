@@ -1,0 +1,19 @@
+<form (ngSubmit)="valider()">
+  <h1>Changement de mot de passe obligatoire</h1>
+
+  <label>
+    Mot de passe actuel
+    <input name="motDePasseActuel" type="password" [(ngModel)]="motDePasseActuel" required data-testid="mot-de-passe-actuel" />
+  </label>
+
+  <label>
+    Nouveau mot de passe
+    <input name="nouveauMotDePasse" type="password" [(ngModel)]="nouveauMotDePasse" required data-testid="nouveau-mot-de-passe" />
+  </label>
+
+  <button type="submit" data-testid="soumettre">Valider</button>
+
+  @if (messageErreur) {
+    <p data-testid="erreur">{{ messageErreur }}</p>
+  }
+</form>

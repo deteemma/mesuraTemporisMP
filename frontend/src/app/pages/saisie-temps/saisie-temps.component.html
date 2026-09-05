@@ -1,0 +1,79 @@
+<h1>Saisie de temps</h1>
+
+<section>
+  <h2>Chronomètre</h2>
+
+  @if (chronoActif) {
+    <p data-testid="chrono-en-cours">Chronomètre en cours depuis {{ chronoActif.heureDebut }}</p>
+    <button (click)="arreterChrono()" data-testid="arreter-chrono">Arrêter</button>
+  } @else {
+    <select [(ngModel)]="projetChoisi" name="projetChoisi" (ngModelChange)="chargerActivites($event)" data-testid="chrono-projet">
+      <option value="">Choisir un Projet</option>
+      @for (projet of projets; track projet.id) {
+        <option [value]="projet.id">{{ projet.nom }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="activiteChoisie" name="activiteChoisie" data-testid="chrono-activite">
+      <option value="">Choisir une Activité</option>
+      @for (activite of activites; track activite.id) {
+        <option [value]="activite.id">{{ activite.nom }}</option>
+      }
+    </select>
+
+    <input [(ngModel)]="nomNouvelleActivite" name="nomNouvelleActivite" placeholder="Ou créer une nouvelle Activité" data-testid="chrono-nouvelle-activite" />
+
+    <button (click)="demarrerChrono()" [disabled]="!!chronoActif" data-testid="demarrer-chrono">Démarrer</button>
+  }
+</section>
+
+<section>
+  <h2>Saisie manuelle</h2>
+
+  <form (ngSubmit)="ajouterImputationManuelle()">
+    <select [(ngModel)]="projetSaisieManuelle" name="projetSaisieManuelle" (ngModelChange)="chargerActivites($event)" data-testid="manuelle-projet">
+      <option value="">Choisir un Projet</option>
+      @for (projet of projets; track projet.id) {
+        <option [value]="projet.id">{{ projet.nom }}</option>
+      }
+    </select>
+
+    <select [(ngModel)]="activiteSaisieManuelle" name="activiteSaisieManuelle" data-testid="manuelle-activite">
+      <option value="">Choisir une Activité</option>
+      @for (activite of activites; track activite.id) {
+        <option [value]="activite.id">{{ activite.nom }}</option>
+      }
+    </select>
+
+    <input type="datetime-local" [(ngModel)]="heureDebutManuelle" name="heureDebutManuelle" data-testid="manuelle-debut" />
+    <input type="datetime-local" [(ngModel)]="heureFinManuelle" name="heureFinManuelle" data-testid="manuelle-fin" />
+
+    <button type="submit" data-testid="ajouter-manuelle">Ajouter</button>
+  </form>
+</section>
+
+<section>
+  <h2>Synthèse journalière</h2>
+
+  @if (synthese) {
+    <ul>
+      @for (ligne of synthese.lignes; track ligne.projetId + ligne.activiteId) {
+        <li data-testid="synthese-ligne">{{ ligne.projetNom }} / {{ ligne.activiteNom }} : {{ ligne.dureeMinutes }} min</li>
+      }
+    </ul>
+    <p data-testid="synthese-total">Total : {{ synthese.totalMinutes }} min</p>
+  }
+</section>
+
+<section>
+  <h2>Imputations du jour</h2>
+
+  <ul>
+    @for (imputation of imputationsDuJour; track imputation.id) {
+      <li data-testid="imputation-jour">
+        {{ imputation.heureDebut }} → {{ imputation.heureFin ?? 'en cours' }}
+        <button (click)="supprimerImputation(imputation.id)" data-testid="supprimer-imputation">Supprimer</button>
+      </li>
+    }
+  </ul>
+</section>

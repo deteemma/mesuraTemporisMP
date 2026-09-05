@@ -1,0 +1,13 @@
+@if (authService.estConnecte()) {
+  <nav>
+    <a routerLink="/saisie-temps">Saisie de temps</a>
+    <a routerLink="/rapport">Rapport</a>
+    @if (authService.utilisateurCourant()?.role === 'administrateur') {
+      <a routerLink="/projets">Projets</a>
+      <a routerLink="/utilisateurs">Utilisateurs</a>
+    }
+    <button (click)="seDeconnecter()">Se déconnecter</button>
+  </nav>
+}
+
+<router-outlet />
