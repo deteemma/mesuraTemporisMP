@@ -4,11 +4,11 @@
 
 **Blocked by:** 04
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Un Utilisateur affecté à un Projet peut démarrer un chronomètre sur une Activité existante de ce Projet
-- [ ] Un Utilisateur peut créer une nouvelle Activité à la volée au moment de démarrer un chronomètre
-- [ ] Le démarrage crée une Imputation avec heureDebut = maintenant et heureFin = null
-- [ ] Le serveur refuse de démarrer un second chronomètre si l'Utilisateur en a déjà un actif (heureFin null), quel que soit le Projet/Activité
-- [ ] Arrêter le chronomètre renseigne heureFin sur l'Imputation ouverte
-- [ ] Tests d'intégration API + écran Angular du chronomètre (démarrage/arrêt, bouton désactivé si déjà actif)
+- [x] Un Utilisateur affecté à un Projet peut démarrer un chronomètre sur une Activité existante de ce Projet
+- [x] Un Utilisateur peut créer une nouvelle Activité à la volée au moment de démarrer un chronomètre
+- [x] Le démarrage crée une Imputation avec heureDebut = maintenant et heureFin = null
+- [x] Le serveur refuse de démarrer un second chronomètre si l'Utilisateur en a déjà un actif (heureFin null), quel que soit le Projet/Activité
+- [x] Arrêter le chronomètre renseigne heureFin sur l'Imputation ouverte
+- [x] Tests d'intégration API + écran Angular du chronomètre (démarrage/arrêt, bouton désactivé si déjà actif)

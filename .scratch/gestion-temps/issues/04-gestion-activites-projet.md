@@ -4,11 +4,11 @@
 
 **Blocked by:** 03
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Un Administrateur peut créer une Activité au sein d'un Projet
-- [ ] Un Administrateur peut renommer une Activité
-- [ ] Un Administrateur peut supprimer une Activité
-- [ ] Une Activité est toujours rattachée à un Projet unique
-- [ ] Un Utilisateur non-Administrateur reçoit un refus sur ces routes de gestion des Activités
-- [ ] Tests d'intégration API + écran Angular de gestion des Activités d'un Projet
+- [x] Un Administrateur peut créer une Activité au sein d'un Projet
+- [x] Un Administrateur peut renommer une Activité
+- [x] Un Administrateur peut supprimer une Activité
+- [x] Une Activité est toujours rattachée à un Projet unique
+- [x] Un Utilisateur non-Administrateur reçoit un refus sur ces routes de gestion des Activités
+- [x] Tests d'intégration API + écran Angular de gestion des Activités d'un Projet

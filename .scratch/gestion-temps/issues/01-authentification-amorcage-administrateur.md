@@ -4,11 +4,11 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Au premier démarrage de l'application (aucun Utilisateur en base), un compte Administrateur `admin`/`admin` est créé automatiquement
-- [ ] Un Utilisateur peut se connecter avec son login/mot de passe et reçoit une session (JWT)
-- [ ] Une connexion avec des identifiants invalides est refusée
-- [ ] Le compte admin par défaut doit changer son mot de passe à la première connexion avant de pouvoir accéder au reste de l'application
-- [ ] Test d'intégration (supertest + mongodb-memory-server) vérifiant la création automatique du compte admin et le flux connexion/changement de mot de passe obligatoire
-- [ ] Test Angular (TestBed + HttpClientTestingModule) vérifiant l'écran de connexion et l'écran de changement de mot de passe obligatoire
+- [x] Au premier démarrage de l'application (aucun Utilisateur en base), un compte Administrateur `admin`/`admin` est créé automatiquement
+- [x] Un Utilisateur peut se connecter avec son login/mot de passe et reçoit une session (JWT)
+- [x] Une connexion avec des identifiants invalides est refusée
+- [x] Le compte admin par défaut doit changer son mot de passe à la première connexion avant de pouvoir accéder au reste de l'application
+- [x] Test d'intégration (supertest + mongodb-memory-server) vérifiant la création automatique du compte admin et le flux connexion/changement de mot de passe obligatoire
+- [x] Test Angular (TestBed + HttpClientTestingModule) vérifiant l'écran de connexion et l'écran de changement de mot de passe obligatoire

@@ -4,10 +4,10 @@
 
 **Blocked by:** 08
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Un Utilisateur peut choisir une plage de dates (date de début, date de fin) et obtenir un rapport regroupé par Utilisateur/Projet/Activité/Journée
-- [ ] Un Utilisateur ne voit dans ce rapport que ses propres Imputations
-- [ ] Un Administrateur voit dans ce rapport les Imputations de tous les Utilisateurs et Projets
-- [ ] Une plage d'une seule journée fonctionne comme cas particulier d'une plage plus large
-- [ ] Tests d'intégration API sur le regroupement et la portée de visibilité + écran Angular du rapport
+- [x] Un Utilisateur peut choisir une plage de dates (date de début, date de fin) et obtenir un rapport regroupé par Utilisateur/Projet/Activité/Journée
+- [x] Un Utilisateur ne voit dans ce rapport que ses propres Imputations
+- [x] Un Administrateur voit dans ce rapport les Imputations de tous les Utilisateurs et Projets
+- [x] Une plage d'une seule journée fonctionne comme cas particulier d'une plage plus large
+- [x] Tests d'intégration API sur le regroupement et la portée de visibilité + écran Angular du rapport

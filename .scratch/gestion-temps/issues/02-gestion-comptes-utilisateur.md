@@ -4,12 +4,12 @@
 
 **Blocked by:** 01
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Un Administrateur peut créer un compte Utilisateur (login, nom)
-- [ ] Le nouveau compte reçoit un mot de passe temporaire égal à son login
-- [ ] Le nouvel Utilisateur doit changer son mot de passe à sa première connexion
-- [ ] Un Administrateur peut supprimer un compte Utilisateur
-- [ ] Un Utilisateur non-Administrateur reçoit un refus (403) sur les routes de gestion des Utilisateurs
-- [ ] Tests d'intégration API couvrant création, contrainte de premier changement de mot de passe, suppression, et contrôle d'accès par rôle
-- [ ] Écran Angular listant les Utilisateurs avec création/suppression, testé via TestBed
+- [x] Un Administrateur peut créer un compte Utilisateur (login, nom)
+- [x] Le nouveau compte reçoit un mot de passe temporaire égal à son login
+- [x] Le nouvel Utilisateur doit changer son mot de passe à sa première connexion
+- [x] Un Administrateur peut supprimer un compte Utilisateur
+- [x] Un Utilisateur non-Administrateur reçoit un refus (403) sur les routes de gestion des Utilisateurs
+- [x] Tests d'intégration API couvrant création, contrainte de premier changement de mot de passe, suppression, et contrôle d'accès par rôle
+- [x] Écran Angular listant les Utilisateurs avec création/suppression, testé via TestBed

@@ -4,10 +4,10 @@
 
 **Blocked by:** 06
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Supprimer un Utilisateur supprime toutes ses Imputations
-- [ ] Supprimer un Projet supprime toutes les Imputations qui s'y rattachent (via ses Activités)
-- [ ] Supprimer une Activité supprime toutes les Imputations qui s'y rattachent
-- [ ] Le retrait d'affectation d'un Utilisateur à un Projet (sans suppression) ne supprime pas ses Imputations passées
-- [ ] Tests d'intégration API couvrant les trois cas de suppression en cascade et le cas de non-cascade (retrait d'affectation)
+- [x] Supprimer un Utilisateur supprime toutes ses Imputations
+- [x] Supprimer un Projet supprime toutes les Imputations qui s'y rattachent (via ses Activités)
+- [x] Supprimer une Activité supprime toutes les Imputations qui s'y rattachent
+- [x] Le retrait d'affectation d'un Utilisateur à un Projet (sans suppression) ne supprime pas ses Imputations passées
+- [x] Tests d'intégration API couvrant les trois cas de suppression en cascade et le cas de non-cascade (retrait d'affectation)

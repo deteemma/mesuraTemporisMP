@@ -4,12 +4,12 @@
 
 **Blocked by:** 02
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Un Administrateur peut créer un Projet (statut "actif" par défaut)
-- [ ] Un Administrateur peut affecter un ou plusieurs Utilisateurs à un Projet
-- [ ] Un Administrateur peut retirer un Utilisateur d'un Projet sans supprimer ses Imputations passées sur ce Projet
-- [ ] Un Administrateur peut supprimer un Projet
-- [ ] Un Utilisateur ne voit que les Projets sur lesquels il est affecté
-- [ ] Un Utilisateur non affecté à un Projet ne peut pas y accéder
-- [ ] Tests d'intégration API + écran Angular (liste des Projets, gestion de l'affectation)
+- [x] Un Administrateur peut créer un Projet (statut "actif" par défaut)
+- [x] Un Administrateur peut affecter un ou plusieurs Utilisateurs à un Projet
+- [x] Un Administrateur peut retirer un Utilisateur d'un Projet sans supprimer ses Imputations passées sur ce Projet
+- [x] Un Administrateur peut supprimer un Projet
+- [x] Un Utilisateur ne voit que les Projets sur lesquels il est affecté
+- [x] Un Utilisateur non affecté à un Projet ne peut pas y accéder
+- [x] Tests d'intégration API + écran Angular (liste des Projets, gestion de l'affectation)

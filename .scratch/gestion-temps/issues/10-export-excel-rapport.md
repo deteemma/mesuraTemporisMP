@@ -4,8 +4,8 @@
 
 **Blocked by:** 09
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] Un bouton d'export génère un fichier `.xlsx` correspondant au rapport affiché
-- [ ] Le fichier exporté contient les lignes attendues, regroupées par Utilisateur/Projet/Activité/Journée
-- [ ] Test d'intégration API vérifiant la génération d'un fichier `.xlsx` valide avec le contenu attendu
+- [x] Un bouton d'export génère un fichier `.xlsx` correspondant au rapport affiché
+- [x] Le fichier exporté contient les lignes attendues, regroupées par Utilisateur/Projet/Activité/Journée
+- [x] Test d'intégration API vérifiant la génération d'un fichier `.xlsx` valide avec le contenu attendu
