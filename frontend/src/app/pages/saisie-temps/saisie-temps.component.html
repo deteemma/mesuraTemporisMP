@@ -1,79 +1,161 @@
-<h1>Saisie de temps</h1>
+<div class="page">
+  <h1>Saisie de temps</h1>
 
-<section>
-  <h2>Chronomètre</h2>
+  <section class="hero card" [class.hero--actif]="chronoActif">
+    @if (chronoActif) {
+      <div class="hero__actif">
+        <span class="hero__pulse"></span>
+        <div class="hero__texte">
+          <div class="hero__titre">{{ nomActivite(chronoActif.activiteId) }}</div>
+          <div class="hero__sous-titre">
+            {{ nomProjet(chronoActif.projetId) }} · en cours depuis {{ formatHeure(chronoActif.heureDebut) }}
+          </div>
+        </div>
+        <button type="button" class="btn btn-danger hero__stop" (click)="arreterChrono()" data-testid="arreter-chrono">
+          Arrêter
+        </button>
+      </div>
+    } @else {
+      <div class="hero__form">
+        <select
+          class="field"
+          name="projetChoisi"
+          aria-label="Choisir un Projet"
+          [(ngModel)]="projetChoisi"
+          (ngModelChange)="chargerActivites($event)"
+          data-testid="chrono-projet"
+        >
+          <option value="">Choisir un Projet</option>
+          @for (projet of projets; track projet.id) {
+            <option [value]="projet.id">{{ projet.nom }}</option>
+          }
+        </select>
 
-  @if (chronoActif) {
-    <p data-testid="chrono-en-cours">Chronomètre en cours depuis {{ chronoActif.heureDebut }}</p>
-    <button (click)="arreterChrono()" data-testid="arreter-chrono">Arrêter</button>
-  } @else {
-    <select [(ngModel)]="projetChoisi" name="projetChoisi" (ngModelChange)="chargerActivites($event)" data-testid="chrono-projet">
-      <option value="">Choisir un Projet</option>
-      @for (projet of projets; track projet.id) {
-        <option [value]="projet.id">{{ projet.nom }}</option>
-      }
-    </select>
+        <select
+          class="field"
+          name="activiteChoisie"
+          aria-label="Choisir une Activité"
+          [(ngModel)]="activiteChoisie"
+          data-testid="chrono-activite"
+        >
+          <option value="">Choisir une Activité</option>
+          @for (activite of activites; track activite.id) {
+            <option [value]="activite.id">{{ activite.nom }}</option>
+          }
+        </select>
 
-    <select [(ngModel)]="activiteChoisie" name="activiteChoisie" data-testid="chrono-activite">
-      <option value="">Choisir une Activité</option>
-      @for (activite of activites; track activite.id) {
-        <option [value]="activite.id">{{ activite.nom }}</option>
-      }
-    </select>
+        <input
+          class="field hero__nouvelle"
+          name="nomNouvelleActivite"
+          [(ngModel)]="nomNouvelleActivite"
+          placeholder="Ou créer une nouvelle Activité"
+          data-testid="chrono-nouvelle-activite"
+        />
 
-    <input [(ngModel)]="nomNouvelleActivite" name="nomNouvelleActivite" placeholder="Ou créer une nouvelle Activité" data-testid="chrono-nouvelle-activite" />
-
-    <button (click)="demarrerChrono()" [disabled]="!!chronoActif" data-testid="demarrer-chrono">Démarrer</button>
-  }
-</section>
-
-<section>
-  <h2>Saisie manuelle</h2>
-
-  <form (ngSubmit)="ajouterImputationManuelle()">
-    <select [(ngModel)]="projetSaisieManuelle" name="projetSaisieManuelle" (ngModelChange)="chargerActivites($event)" data-testid="manuelle-projet">
-      <option value="">Choisir un Projet</option>
-      @for (projet of projets; track projet.id) {
-        <option [value]="projet.id">{{ projet.nom }}</option>
-      }
-    </select>
-
-    <select [(ngModel)]="activiteSaisieManuelle" name="activiteSaisieManuelle" data-testid="manuelle-activite">
-      <option value="">Choisir une Activité</option>
-      @for (activite of activites; track activite.id) {
-        <option [value]="activite.id">{{ activite.nom }}</option>
-      }
-    </select>
-
-    <input type="datetime-local" [(ngModel)]="heureDebutManuelle" name="heureDebutManuelle" data-testid="manuelle-debut" />
-    <input type="datetime-local" [(ngModel)]="heureFinManuelle" name="heureFinManuelle" data-testid="manuelle-fin" />
-
-    <button type="submit" data-testid="ajouter-manuelle">Ajouter</button>
-  </form>
-</section>
-
-<section>
-  <h2>Synthèse journalière</h2>
+        <button
+          type="button"
+          class="btn btn-primary hero__start"
+          [disabled]="!projetChoisi"
+          (click)="demarrerChrono()"
+          data-testid="demarrer-chrono"
+        >
+          ▶ Démarrer
+        </button>
+      </div>
+    }
+  </section>
 
   @if (synthese) {
-    <ul>
+    <div class="stat-row">
+      <div class="stat-row__item">
+        <span class="stat-row__valeur">{{ formatMinutes(synthese.totalMinutes) }}</span>
+        <span class="stat-row__label">aujourd'hui</span>
+      </div>
       @for (ligne of synthese.lignes; track ligne.projetId + ligne.activiteId) {
-        <li data-testid="synthese-ligne">{{ ligne.projetNom }} / {{ ligne.activiteNom }} : {{ ligne.dureeMinutes }} min</li>
+        <div class="stat-row__item stat-row__item--muted">
+          <span class="stat-row__valeur">{{ formatMinutes(ligne.dureeMinutes) }}</span>
+          <span class="stat-row__label">{{ ligne.projetNom }} / {{ ligne.activiteNom }}</span>
+        </div>
+      }
+    </div>
+  }
+
+  <section class="card entries">
+    <h2 class="entries__titre">Entrées d'aujourd'hui</h2>
+    @if (imputationsDuJour.length === 0) {
+      <p class="entries__vide">Aucune Imputation aujourd'hui pour l'instant.</p>
+    }
+    <ul class="entries__liste">
+      @for (imputation of imputationsDuJour; track imputation.id) {
+        <li class="entries__ligne" data-testid="imputation-jour">
+          <span class="entries__puce" [class.entries__puce--actif]="!imputation.heureFin"></span>
+          <div class="entries__info">
+            <span class="entries__activite">{{ nomActivite(imputation.activiteId) }}</span>
+            <span class="entries__projet">{{ nomProjet(imputation.projetId) }}</span>
+          </div>
+          <span class="entries__horaire">
+            {{ formatHeure(imputation.heureDebut) }} → {{ imputation.heureFin ? formatHeure(imputation.heureFin) : 'en cours' }}
+          </span>
+          <span class="badge">{{ formatDuree(imputation.heureDebut, imputation.heureFin) }}</span>
+          <button
+            type="button"
+            class="btn btn-danger entries__supprimer"
+            (click)="supprimerImputation(imputation.id)"
+            data-testid="supprimer-imputation"
+            aria-label="Supprimer cette Imputation"
+          >
+            ✕
+          </button>
+        </li>
       }
     </ul>
-    <p data-testid="synthese-total">Total : {{ synthese.totalMinutes }} min</p>
-  }
-</section>
+  </section>
 
-<section>
-  <h2>Imputations du jour</h2>
-
-  <ul>
-    @for (imputation of imputationsDuJour; track imputation.id) {
-      <li data-testid="imputation-jour">
-        {{ imputation.heureDebut }} → {{ imputation.heureFin ?? 'en cours' }}
-        <button (click)="supprimerImputation(imputation.id)" data-testid="supprimer-imputation">Supprimer</button>
-      </li>
-    }
-  </ul>
-</section>
+  <details class="card manuel">
+    <summary>+ Ajouter une Imputation manuellement</summary>
+    <form class="manuel__form" (ngSubmit)="ajouterImputationManuelle()">
+      <select
+        class="field"
+        name="projetSaisieManuelle"
+        aria-label="Projet"
+        [(ngModel)]="projetSaisieManuelle"
+        (ngModelChange)="chargerActivites($event)"
+        data-testid="manuelle-projet"
+      >
+        <option value="">Projet</option>
+        @for (projet of projets; track projet.id) {
+          <option [value]="projet.id">{{ projet.nom }}</option>
+        }
+      </select>
+      <select
+        class="field"
+        name="activiteSaisieManuelle"
+        aria-label="Activité"
+        [(ngModel)]="activiteSaisieManuelle"
+        data-testid="manuelle-activite"
+      >
+        <option value="">Activité</option>
+        @for (activite of activites; track activite.id) {
+          <option [value]="activite.id">{{ activite.nom }}</option>
+        }
+      </select>
+      <input
+        class="field"
+        type="datetime-local"
+        name="heureDebutManuelle"
+        aria-label="Heure de début"
+        [(ngModel)]="heureDebutManuelle"
+        data-testid="manuelle-debut"
+      />
+      <input
+        class="field"
+        type="datetime-local"
+        name="heureFinManuelle"
+        aria-label="Heure de fin"
+        [(ngModel)]="heureFinManuelle"
+        data-testid="manuelle-fin"
+      />
+      <button type="submit" class="btn btn-secondary" data-testid="ajouter-manuelle">Ajouter</button>
+    </form>
+  </details>
+</div>

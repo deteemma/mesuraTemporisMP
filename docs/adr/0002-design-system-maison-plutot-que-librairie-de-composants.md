@@ -1,0 +1,5 @@
+# Système de design maison plutôt qu'une librairie de composants
+
+L'interface Angular était jusqu'ici du HTML brut sans aucun style. Dans le cadre de sa refonte visuelle complète (inspirée de Clockify), nous avons écarté l'adoption d'une librairie de composants pré-stylée (Angular Material, PrimeNG, Bootstrap) — choix par défaut habituel dans l'écosystème Angular — car leur esthétique imposée (notamment Material Design) s'éloigne du rendu épuré recherché et serait coûteuse à masquer par-dessus. Nous construisons à la place un petit système de design maison : tokens SCSS (couleurs, espacements, typographie) et un jeu réduit de composants réutilisables (boutons, champs, cartes, tableaux), avec Tailwind CSS autorisé en support utilitaire si besoin.
+
+Conséquence assumée : chaque composant d'interface doit être stylé à la main plutôt que hérité d'une librairie, ce qui demande plus d'effort initial qu'un import Material/PrimeNG. Les tokens sont structurés dès le départ pour permettre un futur thème sombre, même si seul le thème clair est livré dans cette première passe.

@@ -7,6 +7,7 @@ import { ActiviteService } from '../../services/activite.service';
 import { ImputationService } from '../../services/imputation.service';
 import { ProjetService } from '../../services/projet.service';
 import { RapportService } from '../../services/rapport.service';
+import { formatDuree, formatHeure, formatMinutes } from './imputation-format.util';
 
 function dateDuJour(): string {
   return new Date().toISOString().slice(0, 10);
@@ -17,6 +18,7 @@ function dateDuJour(): string {
   standalone: true,
   imports: [FormsModule],
   templateUrl: './saisie-temps.component.html',
+  styleUrl: './saisie-temps.component.scss',
 })
 export class SaisieTempsComponent implements OnInit {
   projets: Projet[] = [];
@@ -34,6 +36,12 @@ export class SaisieTempsComponent implements OnInit {
   heureDebutManuelle = '';
   heureFinManuelle = '';
 
+  formatHeure = formatHeure;
+  formatDuree = formatDuree;
+  formatMinutes = formatMinutes;
+
+  private capNomsActivites: Record<string, string> = {};
+
   constructor(
     private projetService: ProjetService,
     private activiteService: ActiviteService,
@@ -48,6 +56,14 @@ export class SaisieTempsComponent implements OnInit {
     this.rafraichirImputationsDuJour();
   }
 
+  nomProjet(id: string): string {
+    return this.projets.find((p) => p.id === id)?.nom ?? '—';
+  }
+
+  nomActivite(id: string): string {
+    return this.capNomsActivites[id] ?? '—';
+  }
+
   private rafraichirChrono(): void {
     this.imputationService.statutChrono().subscribe((imputation) => (this.chronoActif = imputation));
   }
@@ -57,7 +73,21 @@ export class SaisieTempsComponent implements OnInit {
   }
 
   private rafraichirImputationsDuJour(): void {
-    this.imputationService.listerDuJour(dateDuJour()).subscribe((imputations) => (this.imputationsDuJour = imputations));
+    this.imputationService.listerDuJour(dateDuJour()).subscribe((imputations) => {
+      this.imputationsDuJour = imputations;
+      this.completerCacheNomsActivites(imputations);
+    });
+  }
+
+  private completerCacheNomsActivites(imputations: Imputation[]): void {
+    const projetIds = [...new Set(imputations.map((i) => i.projetId))];
+    for (const projetId of projetIds) {
+      this.activiteService.lister(projetId).subscribe((activites) => {
+        for (const activite of activites) {
+          this.capNomsActivites[activite.id] = activite.nom;
+        }
+      });
+    }
   }
 
   private rafraichirApresChangement(): void {
@@ -107,13 +137,6 @@ export class SaisieTempsComponent implements OnInit {
         this.heureFinManuelle = '';
         this.rafraichirApresChangement();
       });
-  }
-
-  modifierImputation(imputation: Imputation, champ: 'heureDebut' | 'heureFin', valeur: string): void {
-    if (!valeur) return;
-    this.imputationService
-      .modifier(imputation.id, { [champ]: new Date(valeur).toISOString() })
-      .subscribe(() => this.rafraichirApresChangement());
   }
 
   supprimerImputation(id: string): void {

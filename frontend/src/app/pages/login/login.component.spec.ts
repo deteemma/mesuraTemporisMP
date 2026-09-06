@@ -23,6 +23,7 @@ describe('LoginComponent', () => {
 
   afterEach(() => {
     httpMock.verify();
+    localStorage.clear();
   });
 
   it('redirige vers le changement de mot de passe obligatoire si nécessaire', () => {

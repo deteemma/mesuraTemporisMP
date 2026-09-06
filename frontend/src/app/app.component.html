@@ -1,13 +1,63 @@
 @if (authService.estConnecte()) {
-  <nav>
-    <a routerLink="/saisie-temps">Saisie de temps</a>
-    <a routerLink="/rapport">Rapport</a>
-    @if (authService.utilisateurCourant()?.role === 'administrateur') {
-      <a routerLink="/projets">Projets</a>
-      <a routerLink="/utilisateurs">Utilisateurs</a>
-    }
-    <button (click)="seDeconnecter()">Se déconnecter</button>
-  </nav>
-}
+  <div class="shell">
+    <nav class="sidenav">
+      <div class="sidenav__brand">
+        <span class="sidenav__brand-mark">MT</span>
+        <span class="sidenav__brand-name">mesureTemporisMP</span>
+      </div>
 
-<router-outlet />
+      <div class="sidenav__links">
+        <a routerLink="/saisie-temps" routerLinkActive="is-active" class="sidenav__link">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          <span>Saisie de temps</span>
+        </a>
+        <a routerLink="/rapport" routerLinkActive="is-active" class="sidenav__link">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M12 19V5M20 19v-7"/></svg>
+          <span>Rapport</span>
+        </a>
+        @if (authService.utilisateurCourant()?.role === 'administrateur') {
+          <a routerLink="/projets" routerLinkActive="is-active" class="sidenav__link">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h5l2 2h11v10H3z"/></svg>
+            <span>Projets</span>
+          </a>
+          <a routerLink="/utilisateurs" routerLinkActive="is-active" class="sidenav__link">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6M16 8a3 3 0 1 1 0-6M22 20c0-2.8-1.9-5-4.5-5.7"/></svg>
+            <span>Utilisateurs</span>
+          </a>
+        }
+      </div>
+
+      <button type="button" class="sidenav__logout" (click)="seDeconnecter()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>Se déconnecter</span>
+      </button>
+    </nav>
+
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+
+    <nav class="bottomnav">
+      <a routerLink="/saisie-temps" routerLinkActive="is-active" class="bottomnav__link">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        <span>Temps</span>
+      </a>
+      <a routerLink="/rapport" routerLinkActive="is-active" class="bottomnav__link">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V10M12 19V5M20 19v-7"/></svg>
+        <span>Rapport</span>
+      </a>
+      @if (authService.utilisateurCourant()?.role === 'administrateur') {
+        <a routerLink="/projets" routerLinkActive="is-active" class="bottomnav__link">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h5l2 2h11v10H3z"/></svg>
+          <span>Projets</span>
+        </a>
+        <a routerLink="/utilisateurs" routerLinkActive="is-active" class="bottomnav__link">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3-6 7-6s7 2.7 7 6M16 8a3 3 0 1 1 0-6M22 20c0-2.8-1.9-5-4.5-5.7"/></svg>
+          <span>Utilisateurs</span>
+        </a>
+      }
+    </nav>
+  </div>
+} @else {
+  <router-outlet />
+}
