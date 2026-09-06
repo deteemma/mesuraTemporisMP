@@ -1,19 +1,27 @@
-<form (ngSubmit)="seConnecter()">
-  <h1>Connexion</h1>
+<div class="auth">
+  <form class="auth__card card" (ngSubmit)="seConnecter()">
+    <div class="auth__brand">
+      <span class="auth__brand-mark">MT</span>
+      <span class="auth__brand-name">mesureTemporisMP</span>
+    </div>
+    <h1 class="auth__titre">Connexion</h1>
 
-  <label>
-    Login
-    <input name="login" [(ngModel)]="login" required data-testid="login" />
-  </label>
+    <div class="auth__form">
+      <label class="field-group">
+        Login
+        <input class="field" name="login" [(ngModel)]="login" required data-testid="login" />
+      </label>
 
-  <label>
-    Mot de passe
-    <input name="motDePasse" type="password" [(ngModel)]="motDePasse" required data-testid="mot-de-passe" />
-  </label>
+      <label class="field-group">
+        Mot de passe
+        <input class="field" name="motDePasse" type="password" [(ngModel)]="motDePasse" required data-testid="mot-de-passe" />
+      </label>
 
-  <button type="submit" data-testid="soumettre">Se connecter</button>
+      <button type="submit" class="btn btn-primary auth__submit" data-testid="soumettre">Se connecter</button>
 
-  @if (messageErreur) {
-    <p data-testid="erreur">{{ messageErreur }}</p>
-  }
-</form>
+      @if (messageErreur) {
+        <p class="banner-error" data-testid="erreur">{{ messageErreur }}</p>
+      }
+    </div>
+  </form>
+</div>

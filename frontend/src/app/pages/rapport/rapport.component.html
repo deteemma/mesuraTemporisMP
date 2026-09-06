@@ -1,40 +1,49 @@
-<h1>Rapport</h1>
+<div class="page">
+  <h1>Rapport</h1>
 
-<form (ngSubmit)="genererRapport()">
-  <label>
-    Du
-    <input type="date" [(ngModel)]="dateDebut" name="dateDebut" data-testid="date-debut" />
-  </label>
-  <label>
-    Au
-    <input type="date" [(ngModel)]="dateFin" name="dateFin" data-testid="date-fin" />
-  </label>
-  <button type="submit" data-testid="generer-rapport">Générer</button>
-  <button type="button" (click)="exporter()" data-testid="exporter-excel">Exporter en Excel</button>
-</form>
+  <section class="card filtre">
+    <form class="inline-form" (ngSubmit)="genererRapport()">
+      <label class="field-group">
+        Du
+        <input class="field" type="date" [(ngModel)]="dateDebut" name="dateDebut" data-testid="date-debut" />
+      </label>
+      <label class="field-group">
+        Au
+        <input class="field" type="date" [(ngModel)]="dateFin" name="dateFin" data-testid="date-fin" />
+      </label>
+      <button type="submit" class="btn btn-primary" data-testid="generer-rapport">Générer</button>
+      <button type="button" class="btn btn-secondary" (click)="exporter()" data-testid="exporter-excel">Exporter en Excel</button>
+    </form>
+  </section>
 
-@if (rapport) {
-  <table>
-    <thead>
-      <tr>
-        <th>Utilisateur</th>
-        <th>Projet</th>
-        <th>Activité</th>
-        <th>Journée</th>
-        <th>Durée (min)</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (ligne of rapport.lignes; track ligne.utilisateurId + ligne.projetId + ligne.activiteId + ligne.journee) {
-        <tr data-testid="rapport-ligne">
-          <td>{{ ligne.utilisateurLogin }}</td>
-          <td>{{ ligne.projetNom }}</td>
-          <td>{{ ligne.activiteNom }}</td>
-          <td>{{ ligne.journee }}</td>
-          <td>{{ ligne.dureeMinutes }}</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-  <p data-testid="rapport-total">Total : {{ rapport.totalMinutes }} min</p>
-}
+  @if (rapport) {
+    <div class="stat-row">
+      <div class="stat-row__item">
+        <span class="stat-row__valeur">{{ formatMinutes(rapport.totalMinutes) }}</span>
+        <span class="stat-row__label" data-testid="rapport-total">sur la période</span>
+      </div>
+    </div>
+
+    @for (groupe of groupesParJour; track groupe.journee) {
+      <section class="card jour">
+        <div class="jour__entete">
+          <h2 class="jour__titre">{{ groupe.journee }}</h2>
+          <span class="badge">{{ formatMinutes(groupe.totalMinutes) }}</span>
+        </div>
+        <ul class="resource-list">
+          @for (ligne of groupe.lignes; track ligne.utilisateurId + ligne.projetId + ligne.activiteId) {
+            <li class="resource-list__item" data-testid="rapport-ligne">
+              <div>
+                <div class="resource-list__nom">{{ ligne.activiteNom }}</div>
+                <div class="resource-list__meta">{{ ligne.projetNom }} · {{ ligne.utilisateurLogin }}</div>
+              </div>
+              <span class="badge resource-list__actions">{{ formatMinutes(ligne.dureeMinutes) }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  } @else {
+    <p class="rapport__vide">Choisissez une période puis cliquez sur « Générer » pour afficher le détail du temps imputé.</p>
+  }
+</div>

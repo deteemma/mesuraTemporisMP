@@ -1,17 +1,48 @@
-<h1>Activités du Projet</h1>
+<div class="page">
+  <a class="back-link" routerLink="/projets">← Projets</a>
+  <h1>Activités du Projet</h1>
 
-<form (ngSubmit)="creer()">
-  <input name="nouveauNomActivite" [(ngModel)]="nouveauNomActivite" placeholder="Nom de l'Activité" required data-testid="nouveau-nom-activite" />
-  <button type="submit" data-testid="creer-activite">Créer</button>
-</form>
+  <section class="card">
+    <form class="inline-form" (ngSubmit)="creer()">
+      <input
+        class="field"
+        name="nouveauNomActivite"
+        [(ngModel)]="nouveauNomActivite"
+        placeholder="Nom de l'Activité"
+        required
+        data-testid="nouveau-nom-activite"
+      />
+      <button type="submit" class="btn btn-primary" data-testid="creer-activite">Créer</button>
+    </form>
+  </section>
 
-<ul>
-  @for (activite of activites; track activite.id) {
-    <li data-testid="activite">
-      {{ activite.nom }}
-      <input [(ngModel)]="renommageEnCours[activite.id]" [name]="'renommer-' + activite.id" data-testid="renommer-champ" />
-      <button (click)="renommer(activite.id)" data-testid="renommer-activite">Renommer</button>
-      <button (click)="supprimer(activite.id)" data-testid="supprimer-activite">Supprimer</button>
-    </li>
+  @if (activites.length === 0) {
+    <p class="resource-list__vide">Aucune Activité pour l'instant.</p>
+  } @else {
+    <section class="card">
+      <ul class="resource-list">
+        @for (activite of activites; track activite.id) {
+          <li class="resource-list__item" data-testid="activite">
+            <span class="resource-list__nom">{{ activite.nom }}</span>
+            <div class="resource-list__actions">
+              <input
+                class="field"
+                [(ngModel)]="renommageEnCours[activite.id]"
+                [name]="'renommer-' + activite.id"
+                placeholder="Renommer en…"
+                aria-label="Renommer l'Activité"
+                data-testid="renommer-champ"
+              />
+              <button type="button" class="btn btn-secondary" (click)="renommer(activite.id)" data-testid="renommer-activite">
+                Renommer
+              </button>
+              <button type="button" class="btn btn-danger" (click)="supprimer(activite.id)" data-testid="supprimer-activite">
+                Supprimer
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
   }
-</ul>
+</div>

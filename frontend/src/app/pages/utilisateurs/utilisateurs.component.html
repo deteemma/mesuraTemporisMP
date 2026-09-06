@@ -1,16 +1,37 @@
-<h1>Utilisateurs</h1>
+<div class="page">
+  <h1>Utilisateurs</h1>
 
-<form (ngSubmit)="creer()">
-  <input name="nouveauLogin" [(ngModel)]="nouveauLogin" placeholder="Login" required data-testid="nouveau-login" />
-  <input name="nouveauNom" [(ngModel)]="nouveauNom" placeholder="Nom" data-testid="nouveau-nom" />
-  <button type="submit" data-testid="creer">Créer</button>
-</form>
+  <section class="card">
+    <form class="inline-form" (ngSubmit)="creer()">
+      <input class="field" name="nouveauLogin" [(ngModel)]="nouveauLogin" placeholder="Login" required data-testid="nouveau-login" />
+      <input class="field" name="nouveauNom" [(ngModel)]="nouveauNom" placeholder="Nom" data-testid="nouveau-nom" />
+      <button type="submit" class="btn btn-primary" data-testid="creer">Créer</button>
+    </form>
+  </section>
 
-<ul>
-  @for (utilisateur of utilisateurs; track utilisateur.id) {
-    <li data-testid="utilisateur">
-      {{ utilisateur.login }} — {{ utilisateur.nom }} ({{ utilisateur.role }})
-      <button (click)="supprimer(utilisateur.id)" data-testid="supprimer">Supprimer</button>
-    </li>
+  @if (utilisateurs.length === 0) {
+    <p class="resource-list__vide">Aucun Utilisateur pour l'instant.</p>
+  } @else {
+    <section class="card">
+      <ul class="resource-list">
+        @for (utilisateur of utilisateurs; track utilisateur.id) {
+          <li class="resource-list__item" data-testid="utilisateur">
+            <div>
+              <span class="resource-list__nom">{{ utilisateur.login }}</span>
+              <span class="resource-list__meta">{{ utilisateur.nom }}</span>
+            </div>
+            <span class="badge">{{ utilisateur.role }}</span>
+            <button
+              type="button"
+              class="btn btn-danger resource-list__actions"
+              (click)="supprimer(utilisateur.id)"
+              data-testid="supprimer"
+            >
+              Supprimer
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
   }
-</ul>
+</div>

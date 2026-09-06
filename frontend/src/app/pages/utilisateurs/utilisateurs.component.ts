@@ -8,6 +8,7 @@ import { UtilisateurService } from '../../services/utilisateur.service';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './utilisateurs.component.html',
+  styleUrl: './utilisateurs.component.scss',
 })
 export class UtilisateursComponent implements OnInit {
   utilisateurs: Utilisateur[] = [];

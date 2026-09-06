@@ -1,36 +1,85 @@
-<h1>Projets</h1>
+<div class="page">
+  <h1>Projets</h1>
 
-@if (authService.utilisateurCourant()?.role === 'administrateur') {
-  <form (ngSubmit)="creer()">
-    <input name="nouveauNomProjet" [(ngModel)]="nouveauNomProjet" placeholder="Nom du Projet" required data-testid="nouveau-nom-projet" />
-    <button type="submit" data-testid="creer-projet">Créer</button>
-  </form>
-}
+  @if (authService.utilisateurCourant()?.role === 'administrateur') {
+    <section class="card">
+      <form class="inline-form" (ngSubmit)="creer()">
+        <input
+          class="field"
+          name="nouveauNomProjet"
+          [(ngModel)]="nouveauNomProjet"
+          placeholder="Nom du Projet"
+          required
+          data-testid="nouveau-nom-projet"
+        />
+        <button type="submit" class="btn btn-primary" data-testid="creer-projet">Créer</button>
+      </form>
+    </section>
+  }
 
-<ul>
+  @if (projets.length === 0) {
+    <p class="resource-list__vide">Aucun Projet pour l'instant.</p>
+  }
+
   @for (projet of projets; track projet.id) {
-    <li data-testid="projet">
-      <strong>{{ projet.nom }}</strong> ({{ projet.statut }})
+    <section class="card projet" data-testid="projet">
+      <div class="projet__entete">
+        <div class="projet__titre">
+          <span class="projet__nom">{{ projet.nom }}</span>
+          <span class="badge">{{ projet.statut }}</span>
+        </div>
+        @if (authService.utilisateurCourant()?.role === 'administrateur') {
+          <div class="projet__entete-actions">
+            <a class="btn btn-secondary" [routerLink]="['/projets', projet.id, 'activites']">Activités</a>
+            <button type="button" class="btn btn-danger" (click)="supprimer(projet.id)" data-testid="supprimer-projet">
+              Supprimer
+            </button>
+          </div>
+        }
+      </div>
 
       @if (authService.utilisateurCourant()?.role === 'administrateur') {
-        <button (click)="supprimer(projet.id)" data-testid="supprimer-projet">Supprimer</button>
+        <div class="projet__equipe">
+          <h3 class="projet__soustitre">Équipe</h3>
 
-        <ul>
-          @for (utilisateurId of projet.utilisateursAffectes; track utilisateurId) {
-            <li>
-              {{ nomUtilisateur(utilisateurId) }}
-              <button (click)="retirer(projet.id, utilisateurId)" data-testid="retirer-utilisateur">Retirer</button>
-            </li>
+          @if (projet.utilisateursAffectes.length === 0) {
+            <p class="resource-list__vide">Aucun Utilisateur affecté.</p>
+          } @else {
+            <ul class="resource-list">
+              @for (utilisateurId of projet.utilisateursAffectes; track utilisateurId) {
+                <li class="resource-list__item">
+                  <span class="resource-list__nom">{{ nomUtilisateur(utilisateurId) }}</span>
+                  <button
+                    type="button"
+                    class="btn btn-danger resource-list__actions"
+                    (click)="retirer(projet.id, utilisateurId)"
+                    data-testid="retirer-utilisateur"
+                  >
+                    Retirer
+                  </button>
+                </li>
+              }
+            </ul>
           }
-        </ul>
 
-        <select [(ngModel)]="affectationChoisie[projet.id]" [name]="'affectation-' + projet.id" data-testid="choix-utilisateur">
-          @for (utilisateur of utilisateurs; track utilisateur.id) {
-            <option [value]="utilisateur.id">{{ utilisateur.login }}</option>
-          }
-        </select>
-        <button (click)="affecter(projet.id)" data-testid="affecter-utilisateur">Affecter</button>
+          <div class="inline-form projet__affectation">
+            <select
+              class="field"
+              [(ngModel)]="affectationChoisie[projet.id]"
+              [name]="'affectation-' + projet.id"
+              aria-label="Choisir un Utilisateur à affecter"
+              data-testid="choix-utilisateur"
+            >
+              @for (utilisateur of utilisateurs; track utilisateur.id) {
+                <option [value]="utilisateur.id">{{ utilisateur.login }}</option>
+              }
+            </select>
+            <button type="button" class="btn btn-secondary" (click)="affecter(projet.id)" data-testid="affecter-utilisateur">
+              Affecter
+            </button>
+          </div>
+        </div>
       }
-    </li>
+    </section>
   }
-</ul>
+</div>

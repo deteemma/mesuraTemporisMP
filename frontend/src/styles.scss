@@ -164,3 +164,163 @@ select {
   background: var(--color-accent-soft);
   color: var(--color-accent-hover);
 }
+
+.banner-error {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+/* Mise en page commune aux pages applicatives */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+  padding-bottom: var(--space-7);
+}
+
+.inline-form {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.inline-form .field {
+  flex: 1 1 160px;
+  min-width: 140px;
+}
+
+/* Listes de ressources (Projets, Activités, Utilisateurs...) */
+
+.resource-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-list__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.resource-list__item:first-child {
+  border-top: none;
+}
+
+.resource-list__nom {
+  font-weight: 500;
+}
+
+.resource-list__meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.resource-list__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.resource-list__vide {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.back-link {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  width: fit-content;
+}
+
+.back-link:hover {
+  color: var(--color-accent);
+}
+
+/* Écrans d'authentification (connexion, changement de mot de passe) */
+
+.auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 360px;
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.auth__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.auth__brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
+
+.auth__brand-name {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.auth__titre {
+  font-size: var(--text-xl);
+  text-align: center;
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth__submit {
+  width: 100%;
+  margin-top: var(--space-1);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.field-group .field {
+  width: 100%;
+  color: var(--color-text);
+}

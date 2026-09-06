@@ -7,7 +7,7 @@ import { ActiviteService } from '../../services/activite.service';
 import { ImputationService } from '../../services/imputation.service';
 import { ProjetService } from '../../services/projet.service';
 import { RapportService } from '../../services/rapport.service';
-import { formatDuree, formatHeure, formatMinutes } from './imputation-format.util';
+import { formatDuree, formatHeure, formatMinutes } from '../../shared/duree.util';
 
 function dateDuJour(): string {
   return new Date().toISOString().slice(0, 10);

@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Activite } from '../../models/activite';
 import { ActiviteService } from '../../services/activite.service';
 
 @Component({
   selector: 'app-activites',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './activites.component.html',
+  styleUrl: './activites.component.scss',
 })
 export class ActivitesComponent implements OnInit {
   projetId = '';

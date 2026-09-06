@@ -5,11 +5,7 @@ export function formatHeure(iso: string): string {
 export function formatDuree(heureDebut: string, heureFin: string | null): string {
   if (!heureFin) return 'en cours';
   const minutes = Math.max(0, Math.round((new Date(heureFin).getTime() - new Date(heureDebut).getTime()) / 60000));
-  const heures = Math.floor(minutes / 60);
-  const reste = minutes % 60;
-  if (heures === 0) return `${reste} min`;
-  if (reste === 0) return `${heures} h`;
-  return `${heures} h ${reste}`;
+  return formatMinutes(minutes);
 }
 
 export function formatMinutes(totalMinutes: number): string {

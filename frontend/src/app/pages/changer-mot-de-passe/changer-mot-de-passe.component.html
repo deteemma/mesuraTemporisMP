@@ -1,19 +1,41 @@
-<form (ngSubmit)="valider()">
-  <h1>Changement de mot de passe obligatoire</h1>
+<div class="auth">
+  <form class="auth__card card" (ngSubmit)="valider()">
+    <div class="auth__brand">
+      <span class="auth__brand-mark">MT</span>
+      <span class="auth__brand-name">mesureTemporisMP</span>
+    </div>
+    <h1 class="auth__titre">Changement de mot de passe obligatoire</h1>
 
-  <label>
-    Mot de passe actuel
-    <input name="motDePasseActuel" type="password" [(ngModel)]="motDePasseActuel" required data-testid="mot-de-passe-actuel" />
-  </label>
+    <div class="auth__form">
+      <label class="field-group">
+        Mot de passe actuel
+        <input
+          class="field"
+          name="motDePasseActuel"
+          type="password"
+          [(ngModel)]="motDePasseActuel"
+          required
+          data-testid="mot-de-passe-actuel"
+        />
+      </label>
 
-  <label>
-    Nouveau mot de passe
-    <input name="nouveauMotDePasse" type="password" [(ngModel)]="nouveauMotDePasse" required data-testid="nouveau-mot-de-passe" />
-  </label>
+      <label class="field-group">
+        Nouveau mot de passe
+        <input
+          class="field"
+          name="nouveauMotDePasse"
+          type="password"
+          [(ngModel)]="nouveauMotDePasse"
+          required
+          data-testid="nouveau-mot-de-passe"
+        />
+      </label>
 
-  <button type="submit" data-testid="soumettre">Valider</button>
+      <button type="submit" class="btn btn-primary auth__submit" data-testid="soumettre">Valider</button>
 
-  @if (messageErreur) {
-    <p data-testid="erreur">{{ messageErreur }}</p>
-  }
-</form>
+      @if (messageErreur) {
+        <p class="banner-error" data-testid="erreur">{{ messageErreur }}</p>
+      }
+    </div>
+  </form>
+</div>

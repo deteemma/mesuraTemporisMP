@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Projet } from '../../models/projet';
 import { Utilisateur } from '../../models/utilisateur';
 import { AuthService } from '../../services/auth.service';
@@ -9,8 +10,9 @@ import { UtilisateurService } from '../../services/utilisateur.service';
 @Component({
   selector: 'app-projets',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterLink],
   templateUrl: './projets.component.html',
+  styleUrl: './projets.component.scss',
 })
 export class ProjetsComponent implements OnInit {
   projets: Projet[] = [];
