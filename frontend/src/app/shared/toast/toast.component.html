@@ -1,0 +1,16 @@
+<div class="toast-conteneur" data-testid="toast-conteneur">
+  @for (notification of notifications; track notification.id) {
+    <div class="toast" data-testid="toast">
+      <span class="toast__message">{{ notification.message }}</span>
+      <button
+        type="button"
+        class="toast__fermer"
+        (click)="fermer(notification.id)"
+        aria-label="Fermer la notification"
+        data-testid="toast-fermer"
+      >
+        ✕
+      </button>
+    </div>
+  }
+</div>
