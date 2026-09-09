@@ -21,5 +21,9 @@ Un item de travail spécifique à un Projet, auquel le temps est réellement imp
 _Avoid_: Tâche
 
 **Imputation**:
-Une plage de temps (heure de début, heure de fin) rattachée à un Utilisateur, un Projet et une Activité — saisie via un chronomètre (démarré/arrêté en direct) ou manuellement. Modifiable ou supprimable à tout moment par l'Utilisateur propriétaire ou l'Administrateur, y compris rétroactivement. Plusieurs Imputations peuvent se chevaucher. Supprimée en cascade si son Utilisateur, son Projet, ou son Activité est supprimé.
+Une plage de temps (heure de début, heure de fin) rattachée à un Utilisateur, un Projet et une Activité — saisie via un chronomètre (démarré/arrêté en direct) ou manuellement. Modifiable ou supprimable à tout moment par l'Utilisateur propriétaire ou l'Administrateur, y compris rétroactivement. Plusieurs Imputations peuvent se chevaucher. Supprimée en cascade si son Utilisateur, son Projet, ou son Activité est supprimé. Un Utilisateur ne peut avoir qu'une seule Imputation en cours (chronomètre actif) à la fois : démarrer un nouveau chronomètre alors qu'un autre est actif arrête automatiquement celui en cours avant de démarrer le nouveau. Une Imputation reste toujours contenue dans une seule journée calendaire : si une modification de son heure de début ou de fin la ferait franchir minuit, elle est automatiquement scindée en deux Imputations consécutives (voir Scission).
 _Avoid_: Saisie de temps, entrée de temps
+
+**Scission** (d'une Imputation):
+Le découpage automatique d'une Imputation en deux lorsqu'une modification de son heure de début ou de fin la ferait franchir minuit. L'Imputation d'origine est tronquée à minuit ; une nouvelle Imputation est créée à minuit, pour le même Utilisateur/Projet/Activité, avec l'heure visée par la modification. Opération atomique côté serveur (les deux écritures réussissent ou échouent ensemble).
+_Avoid_: Split, découpage
