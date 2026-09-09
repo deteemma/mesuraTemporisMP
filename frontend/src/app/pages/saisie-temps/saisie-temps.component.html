@@ -8,7 +8,8 @@
         <div class="hero__texte">
           <div class="hero__titre">{{ nomActivite(chronoActif.activiteId) }}</div>
           <div class="hero__sous-titre">
-            {{ nomProjet(chronoActif.projetId) }} · en cours depuis {{ formatHeure(chronoActif.heureDebut) }}
+            {{ nomProjet(chronoActif.projetId) }} · en cours depuis {{ formatHeure(chronoActif.heureDebut) }} ·
+            <span class="hero__compteur" data-testid="compteur-chrono">{{ compteurEnCours }}</span>
           </div>
         </div>
         <button type="button" class="btn btn-danger hero__stop" (click)="arreterChrono()" data-testid="arreter-chrono">
@@ -65,47 +66,114 @@
     }
   </section>
 
-  @if (synthese) {
-    <div class="stat-row">
-      <div class="stat-row__item">
-        <span class="stat-row__valeur">{{ formatMinutes(synthese.totalMinutes) }}</span>
-        <span class="stat-row__label">aujourd'hui</span>
-      </div>
-      @for (ligne of synthese.lignes; track ligne.projetId + ligne.activiteId) {
-        <div class="stat-row__item stat-row__item--muted">
-          <span class="stat-row__valeur">{{ formatMinutes(ligne.dureeMinutes) }}</span>
-          <span class="stat-row__label">{{ ligne.projetNom }} / {{ ligne.activiteNom }}</span>
-        </div>
-      }
-    </div>
-  }
-
   <section class="card entries">
     <h2 class="entries__titre">Entrées d'aujourd'hui</h2>
-    @if (imputationsDuJour.length === 0) {
+    @if (groupesImputations.length === 0) {
       <p class="entries__vide">Aucune Imputation aujourd'hui pour l'instant.</p>
     }
-    <ul class="entries__liste">
-      @for (imputation of imputationsDuJour; track imputation.id) {
-        <li class="entries__ligne" data-testid="imputation-jour">
-          <span class="entries__puce" [class.entries__puce--actif]="!imputation.heureFin"></span>
-          <div class="entries__info">
-            <span class="entries__activite">{{ nomActivite(imputation.activiteId) }}</span>
-            <span class="entries__projet">{{ nomProjet(imputation.projetId) }}</span>
-          </div>
-          <span class="entries__horaire">
-            {{ formatHeure(imputation.heureDebut) }} → {{ imputation.heureFin ? formatHeure(imputation.heureFin) : 'en cours' }}
-          </span>
-          <span class="badge">{{ formatDuree(imputation.heureDebut, imputation.heureFin) }}</span>
+
+    <ul class="groupes" data-testid="groupes-imputations">
+      @for (groupe of groupesImputations; track groupe.projetId + '::' + groupe.activiteId) {
+        <li class="groupe">
           <button
             type="button"
-            class="btn btn-danger entries__supprimer"
-            (click)="supprimerImputation(imputation.id)"
-            data-testid="supprimer-imputation"
-            aria-label="Supprimer cette Imputation"
+            class="groupe__entete"
+            (click)="basculerGroupe(groupe)"
+            [attr.aria-expanded]="groupe.estDeplie"
+            data-testid="basculer-groupe"
           >
-            ✕
+            <span class="groupe__chevron" [class.groupe__chevron--ouvert]="groupe.estDeplie">▸</span>
+            <div class="groupe__info">
+              <span class="groupe__activite">{{ nomActivite(groupe.activiteId) }}</span>
+              <span class="groupe__projet">{{ nomProjet(groupe.projetId) }}</span>
+            </div>
+            <span class="groupe__nombre" data-testid="groupe-nombre">({{ groupe.imputations.length }})</span>
+            <span class="badge groupe__total" data-testid="groupe-total">{{ formatMinutesHHMM(groupe.totalMinutes) }}</span>
           </button>
+
+          @if (groupe.estDeplie) {
+            <ul class="entries__liste" data-testid="groupe-lignes">
+              @for (imputation of groupe.imputations; track imputation.id) {
+                <li class="entries__ligne" data-testid="imputation-jour">
+                  <span class="entries__puce"></span>
+                  <div class="entries__info">
+                    <span class="entries__activite">{{ nomActivite(imputation.activiteId) }}</span>
+                    <span class="entries__projet">{{ nomProjet(imputation.projetId) }}</span>
+                  </div>
+                  <span class="entries__horaire">
+                    @if (editionChamp?.imputationId === imputation.id && editionChamp?.champ === 'heureDebut') {
+                      <input
+                        type="time"
+                        class="field field--inline entries__input-edition"
+                        [(ngModel)]="valeurEdition"
+                        (blur)="confirmerEdition(imputation)"
+                        (keydown.enter)="confirmerEdition(imputation)"
+                        (keydown.escape)="annulerEdition()"
+                        aria-label="Modifier l'heure de début"
+                        data-testid="input-edition-heure-debut"
+                      />
+                    } @else {
+                      <span
+                        class="entries__heure-editable"
+                        role="button"
+                        tabindex="0"
+                        (click)="demarrerEdition(imputation, 'heureDebut')"
+                        (keydown.enter)="demarrerEdition(imputation, 'heureDebut')"
+                        data-testid="editer-heure-debut"
+                        >{{ formatHeure(imputation.heureDebut) }}</span
+                      >
+                    }
+                    →
+                    @if (editionChamp?.imputationId === imputation.id && editionChamp?.champ === 'heureFin') {
+                      <input
+                        type="time"
+                        class="field field--inline entries__input-edition"
+                        [(ngModel)]="valeurEdition"
+                        (blur)="confirmerEdition(imputation)"
+                        (keydown.enter)="confirmerEdition(imputation)"
+                        (keydown.escape)="annulerEdition()"
+                        aria-label="Modifier l'heure de fin"
+                        data-testid="input-edition-heure-fin"
+                      />
+                    } @else {
+                      <span
+                        class="entries__heure-editable"
+                        role="button"
+                        tabindex="0"
+                        (click)="demarrerEdition(imputation, 'heureFin')"
+                        (keydown.enter)="demarrerEdition(imputation, 'heureFin')"
+                        data-testid="editer-heure-fin"
+                        >{{ formatHeure(imputation.heureFin!) }}</span
+                      >
+                    }
+                  </span>
+                  @if (erreurEdition && editionChamp?.imputationId === imputation.id) {
+                    <span class="entries__erreur" data-testid="erreur-edition">{{ erreurEdition }}</span>
+                  }
+                  <span class="badge">{{ formatDuree(imputation.heureDebut, imputation.heureFin) }}</span>
+                  <button
+                    type="button"
+                    class="btn btn-secondary entries__relancer"
+                    [disabled]="estChronoActifPourLigne(imputation)"
+                    (click)="relancerImputation(imputation)"
+                    data-testid="relancer-imputation"
+                    aria-label="Relancer un chronomètre avec ce Projet et cette Activité"
+                  >
+                    ↻ Relancer
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger entries__supprimer"
+                    (click)="supprimerImputation(imputation.id)"
+                    data-testid="supprimer-imputation"
+                    aria-label="Supprimer cette Imputation"
+                  >
+                    ✕
+                  </button>
+                </li>
+              }
+            </ul>
+          }
         </li>
       }
     </ul>

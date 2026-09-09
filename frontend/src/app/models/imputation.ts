@@ -7,6 +7,25 @@ export interface Imputation {
   heureFin: string | null;
 }
 
+/**
+ * Réponse de `PATCH /imputations/:id`. Porte, en plus de l'Imputation d'origine
+ * (éventuellement tronquée), la nouvelle Imputation créée par une Scission
+ * automatique à minuit (voir ADR 0003), ou `null` si aucune Scission n'a eu lieu.
+ */
+export interface ImputationModifiee extends Imputation {
+  scission: Imputation | null;
+}
+
+/**
+ * Réponse de `POST /imputations/chrono/start`. Porte, en plus de la nouvelle
+ * Imputation démarrée, les informations de l'Imputation précédemment active si son
+ * chronomètre a été arrêté automatiquement (voir CONTEXT.md, entrée « Imputation »),
+ * ou `null` si aucun chrono n'était actif.
+ */
+export interface ImputationDemarree extends Imputation {
+  chronoPrecedentArrete: Imputation | null;
+}
+
 export interface SyntheseJournaliereLigne {
   projetId: string;
   projetNom: string;

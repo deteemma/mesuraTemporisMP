@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../api-base-url';
-import { Imputation } from '../models/imputation';
+import { Imputation, ImputationDemarree, ImputationModifiee } from '../models/imputation';
 
 @Injectable({ providedIn: 'root' })
 export class ImputationService {
@@ -15,8 +15,8 @@ export class ImputationService {
   demarrerChrono(
     projetId: string,
     options: { activiteId?: string; nomNouvelleActivite?: string },
-  ): Observable<Imputation> {
-    return this.http.post<Imputation>(`${API_BASE_URL}/imputations/chrono/start`, { projetId, ...options });
+  ): Observable<ImputationDemarree> {
+    return this.http.post<ImputationDemarree>(`${API_BASE_URL}/imputations/chrono/start`, { projetId, ...options });
   }
 
   arreterChrono(): Observable<Imputation> {
@@ -41,8 +41,8 @@ export class ImputationService {
     return this.http.get<Imputation[]>(`${API_BASE_URL}/imputations`, { params: { date } });
   }
 
-  modifier(id: string, changements: { heureDebut?: string; heureFin?: string }): Observable<Imputation> {
-    return this.http.patch<Imputation>(`${API_BASE_URL}/imputations/${id}`, changements);
+  modifier(id: string, changements: { heureDebut?: string; heureFin?: string }): Observable<ImputationModifiee> {
+    return this.http.patch<ImputationModifiee>(`${API_BASE_URL}/imputations/${id}`, changements);
   }
 
   supprimer(id: string): Observable<void> {

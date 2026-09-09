@@ -110,10 +110,88 @@
   font-size: var(--text-sm);
 }
 
-.entries__liste {
+.groupes {
   list-style: none;
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.groupe {
+  border-top: 1px solid var(--color-border);
+}
+
+.groupe:first-child {
+  border-top: none;
+}
+
+.groupe__entete {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.groupe__entete:hover .groupe__activite,
+.groupe__entete:focus-visible .groupe__activite {
+  color: var(--color-accent-hover);
+}
+
+.groupe__entete:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.groupe__chevron {
+  flex-shrink: 0;
+  display: inline-block;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+}
+
+.groupe__chevron--ouvert {
+  transform: rotate(90deg);
+}
+
+.groupe__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.groupe__activite {
+  font-weight: 500;
+}
+
+.groupe__projet {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.groupe__nombre {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.groupe__total {
+  flex-shrink: 0;
+}
+
+.entries__liste {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) 0 0 var(--space-6);
   display: flex;
   flex-direction: column;
 }
@@ -166,6 +244,29 @@
 
 .entries__supprimer {
   padding: var(--space-1) var(--space-2);
+}
+
+.entries__heure-editable {
+  cursor: pointer;
+  border-radius: var(--radius-sm, 4px);
+  padding: 0 2px;
+}
+
+.entries__heure-editable:hover,
+.entries__heure-editable:focus-visible {
+  background: var(--color-accent-soft);
+  outline: none;
+}
+
+.entries__input-edition {
+  width: 5.5em;
+  padding: 0 4px;
+  font-size: var(--text-sm);
+}
+
+.entries__erreur {
+  color: var(--color-danger);
+  font-size: var(--text-xs);
 }
 
 .manuel {
