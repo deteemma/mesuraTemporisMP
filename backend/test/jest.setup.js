@@ -1,10 +1,13 @@
 const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const { MongoMemoryReplSet } = require('mongodb-memory-server');
 
 let mongoServer;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
+  // Replica set à un seul nœud : requis pour que les transactions multi-documents
+  // Mongoose (session.startTransaction / withTransaction) fonctionnent, MongoDB ne
+  // les supportant pas en topologie standalone.
+  mongoServer = await MongoMemoryReplSet.create({ replSet: { count: 1 } });
   await mongoose.connect(mongoServer.getUri());
 });
 
