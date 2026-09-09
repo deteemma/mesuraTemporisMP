@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const Imputation = require('../models/Imputation');
 const Activite = require('../models/Activite');
 const { verifierAccesProjet, verifierAccesActivite } = require('../middleware/projetAccess');
@@ -8,6 +9,94 @@ const { memeId } = require('../utils/mongoId');
 const { toPublicImputation } = require('../serializers');
 
 const router = express.Router();
+
+const UN_JOUR_MS = 24 * 60 * 60 * 1000;
+
+function jourCalendaireUTC(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function debutJourUTC(date) {
+  return new Date(`${jourCalendaireUTC(date)}T00:00:00.000Z`);
+}
+
+function finJourUTC(date) {
+  return new Date(`${jourCalendaireUTC(date)}T23:59:59.999Z`);
+}
+
+// Scission (voir ADR 0003 et CONTEXT.md) : l'édition de heureFin ferait franchir
+// minuit vers le lendemain. L'Imputation d'origine est tronquée à la fin de sa
+// journée d'origine ; une nouvelle Imputation, pour le même Utilisateur/Projet/
+// Activité, démarre au début du lendemain et se termine à l'heure demandée
+// (reportée d'un jour). Les deux écritures sont atomiques.
+async function scinderVersLeLendemain(imputation, heureFinDemandee) {
+  const jourOrigine = imputation.heureDebut;
+  const heureFinNouvelle = new Date(heureFinDemandee.getTime() + UN_JOUR_MS);
+  const heureDebutNouvelle = debutJourUTC(new Date(jourOrigine.getTime() + UN_JOUR_MS));
+
+  imputation.heureFin = finJourUTC(jourOrigine);
+
+  const session = await mongoose.startSession();
+  let nouvelleImputation;
+  try {
+    await session.withTransaction(async () => {
+      await imputation.save({ session });
+      const [creee] = await Imputation.create(
+        [
+          {
+            utilisateurId: imputation.utilisateurId,
+            projetId: imputation.projetId,
+            activiteId: imputation.activiteId,
+            heureDebut: heureDebutNouvelle,
+            heureFin: heureFinNouvelle,
+          },
+        ],
+        { session },
+      );
+      nouvelleImputation = creee;
+    });
+  } finally {
+    await session.endSession();
+  }
+  return nouvelleImputation;
+}
+
+// Scission symétrique : l'édition de heureDebut ferait franchir minuit vers la
+// veille. L'Imputation d'origine est tronquée au début de sa journée d'origine ;
+// une nouvelle Imputation démarre à l'heure demandée (reportée d'un jour en
+// arrière) et se termine à la fin de la veille.
+async function scinderVersLaVeille(imputation, heureDebutDemandee) {
+  const jourOrigine = imputation.heureFin;
+  const veille = new Date(jourOrigine.getTime() - UN_JOUR_MS);
+  const heureDebutNouvelle = new Date(heureDebutDemandee.getTime() - UN_JOUR_MS);
+  const heureFinNouvelle = finJourUTC(veille);
+
+  imputation.heureDebut = debutJourUTC(jourOrigine);
+
+  const session = await mongoose.startSession();
+  let nouvelleImputation;
+  try {
+    await session.withTransaction(async () => {
+      await imputation.save({ session });
+      const [creee] = await Imputation.create(
+        [
+          {
+            utilisateurId: imputation.utilisateurId,
+            projetId: imputation.projetId,
+            activiteId: imputation.activiteId,
+            heureDebut: heureDebutNouvelle,
+            heureFin: heureFinNouvelle,
+          },
+        ],
+        { session },
+      );
+      nouvelleImputation = creee;
+    });
+  } finally {
+    await session.endSession();
+  }
+  return nouvelleImputation;
+}
 
 async function chargerProjetEtActivite(req, res, projetId, activiteId) {
   const { projet, erreur } = await verifierAccesProjet(projetId, req.utilisateur);
@@ -39,16 +128,14 @@ router.get('/chrono/status', async (req, res) => {
   res.json(imputationOuverte ? toPublicImputation(imputationOuverte) : null);
 });
 
+// Un Utilisateur ne peut avoir qu'une seule Imputation en cours à la fois (voir
+// CONTEXT.md) : démarrer un chronomètre alors qu'un autre est déjà actif n'est plus
+// refusé (409), mais arrête automatiquement celui en cours avant de démarrer le
+// nouveau. Fermeture de l'ancien + création du nouveau sont atomiques (même
+// transaction), suivant le même schéma que la Scission (ticket 06). La réponse
+// indique si un chrono précédent a été arrêté, avec ses informations.
 router.post('/chrono/start', async (req, res) => {
   const { projetId, activiteId, nomNouvelleActivite } = req.body;
-
-  const dejaOuverte = await Imputation.findOne({
-    utilisateurId: req.utilisateur._id,
-    heureFin: null,
-  });
-  if (dejaOuverte) {
-    return res.status(409).json({ message: 'Un chronomètre est déjà actif' });
-  }
 
   const projet = await chargerProjetEtActivite(req, res, projetId, nomNouvelleActivite ? null : activiteId);
   if (!projet) return;
@@ -57,15 +144,44 @@ router.post('/chrono/start', async (req, res) => {
     ? await Activite.create({ nom: nomNouvelleActivite, projetId: projet._id })
     : await Activite.findOne({ _id: activiteId, projetId: projet._id });
 
-  const imputation = await Imputation.create({
-    utilisateurId: req.utilisateur._id,
-    projetId: projet._id,
-    activiteId: activite._id,
-    heureDebut: new Date(),
-    heureFin: null,
-  });
+  const session = await mongoose.startSession();
+  let nouvelleImputation;
+  let chronoPrecedentArrete = null;
+  try {
+    await session.withTransaction(async () => {
+      const dejaOuverte = await Imputation.findOne({
+        utilisateurId: req.utilisateur._id,
+        heureFin: null,
+      }).session(session);
 
-  res.status(201).json(toPublicImputation(imputation));
+      if (dejaOuverte) {
+        dejaOuverte.heureFin = new Date();
+        await dejaOuverte.save({ session });
+        chronoPrecedentArrete = dejaOuverte;
+      }
+
+      const [creee] = await Imputation.create(
+        [
+          {
+            utilisateurId: req.utilisateur._id,
+            projetId: projet._id,
+            activiteId: activite._id,
+            heureDebut: new Date(),
+            heureFin: null,
+          },
+        ],
+        { session },
+      );
+      nouvelleImputation = creee;
+    });
+  } finally {
+    await session.endSession();
+  }
+
+  res.status(201).json({
+    ...toPublicImputation(nouvelleImputation),
+    chronoPrecedentArrete: chronoPrecedentArrete ? toPublicImputation(chronoPrecedentArrete) : null,
+  });
 });
 
 router.post('/chrono/stop', async (req, res) => {
@@ -123,15 +239,39 @@ router.patch('/:id', async (req, res) => {
     return res.status(403).json({ message: 'Accès refusé' });
   }
 
-  if (req.body.heureDebut) {
-    imputation.heureDebut = new Date(req.body.heureDebut);
+  const heureDebutFournie = Object.prototype.hasOwnProperty.call(req.body, 'heureDebut');
+  const heureFinFournie = Object.prototype.hasOwnProperty.call(req.body, 'heureFin');
+
+  const heureDebutFinale = req.body.heureDebut ? new Date(req.body.heureDebut) : imputation.heureDebut;
+  const heureFinFinale = req.body.heureFin ? new Date(req.body.heureFin) : imputation.heureFin;
+
+  const franchitMinuit = Boolean(heureFinFinale) && heureFinFinale < heureDebutFinale;
+
+  if (franchitMinuit) {
+    // Scission automatique (ADR 0003) : le franchissement de minuit ne rejette plus
+    // l'édition, il déclenche une scission. La direction (vers le lendemain ou vers
+    // la veille) se déduit du champ effectivement édité par l'Utilisateur.
+    if (heureFinFournie && !heureDebutFournie) {
+      const nouvelleImputation = await scinderVersLeLendemain(imputation, heureFinFinale);
+      return res.json({ ...toPublicImputation(imputation), scission: toPublicImputation(nouvelleImputation) });
+    }
+    if (heureDebutFournie && !heureFinFournie) {
+      const nouvelleImputation = await scinderVersLaVeille(imputation, heureDebutFinale);
+      return res.json({ ...toPublicImputation(imputation), scission: toPublicImputation(nouvelleImputation) });
+    }
+
+    // heureDebut et heureFin édités simultanément avec inversion résultante : la
+    // direction de la Scission est ambiguë, on refuse plutôt que de deviner.
+    return res.status(400).json({
+      message: "L'heure de fin ne peut pas être antérieure à l'heure de début",
+    });
   }
-  if (req.body.heureFin) {
-    imputation.heureFin = new Date(req.body.heureFin);
-  }
+
+  imputation.heureDebut = heureDebutFinale;
+  imputation.heureFin = heureFinFinale;
   await imputation.save();
 
-  res.json(toPublicImputation(imputation));
+  res.json({ ...toPublicImputation(imputation), scission: null });
 });
 
 router.delete('/:id', async (req, res) => {

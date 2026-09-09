@@ -54,23 +54,59 @@ describe('Chronomètre et création d\'Activité à la volée', () => {
     expect(activites.body.some((a) => a.nom === 'Nouvelle tâche')).toBe(true);
   });
 
-  test('le serveur refuse de démarrer un second chronomètre si un premier est déjà actif', async () => {
+  test('démarrer un chronomètre alors qu\'aucun n\'est actif ne signale aucun chrono précédent arrêté', async () => {
     const app = await demarrerAppEtBootstrap();
     const { token: adminToken } = await connecterAdmin(app);
     const { token: userToken, id: utilisateurId } = await creerEtConnecterUtilisateur(app, adminToken, 'jdupont');
     const projetId = await creerProjetAffecte(app, adminToken, utilisateurId);
 
-    await request(app)
+    const demarrage = await request(app)
       .post('/api/imputations/chrono/start')
       .set('Authorization', `Bearer ${userToken}`)
       .send({ projetId, nomNouvelleActivite: 'Tâche 1' });
+
+    expect(demarrage.status).toBe(201);
+    expect(demarrage.body.chronoPrecedentArrete).toBeNull();
+  });
+
+  test('démarrer un second chronomètre alors qu\'un premier est déjà actif arrête automatiquement celui-ci (plus de 409)', async () => {
+    const app = await demarrerAppEtBootstrap();
+    const { token: adminToken } = await connecterAdmin(app);
+    const { token: userToken, id: utilisateurId } = await creerEtConnecterUtilisateur(app, adminToken, 'jdupont');
+    const projetId = await creerProjetAffecte(app, adminToken, utilisateurId);
+
+    const premierDemarrage = await request(app)
+      .post('/api/imputations/chrono/start')
+      .set('Authorization', `Bearer ${userToken}`)
+      .send({ projetId, nomNouvelleActivite: 'Tâche 1' });
+    const premiereImputationId = premierDemarrage.body.id;
 
     const secondDemarrage = await request(app)
       .post('/api/imputations/chrono/start')
       .set('Authorization', `Bearer ${userToken}`)
       .send({ projetId, nomNouvelleActivite: 'Tâche 2' });
 
-    expect(secondDemarrage.status).toBe(409);
+    expect(secondDemarrage.status).toBe(201);
+    expect(secondDemarrage.body.heureFin).toBeNull();
+    expect(secondDemarrage.body.id).not.toBe(premiereImputationId);
+
+    // La réponse porte les informations du chrono précédent, désormais arrêté.
+    expect(secondDemarrage.body.chronoPrecedentArrete).not.toBeNull();
+    expect(secondDemarrage.body.chronoPrecedentArrete.id).toBe(premiereImputationId);
+    expect(secondDemarrage.body.chronoPrecedentArrete.heureFin).not.toBeNull();
+
+    // Le statut ne renvoie plus qu'un seul chrono actif : le nouveau.
+    const statut = await request(app)
+      .get('/api/imputations/chrono/status')
+      .set('Authorization', `Bearer ${userToken}`);
+    expect(statut.body.id).toBe(secondDemarrage.body.id);
+
+    // L'ancienne Imputation est bien fermée en base (via la liste du jour).
+    const imputations = await request(app)
+      .get('/api/imputations')
+      .set('Authorization', `Bearer ${userToken}`);
+    const ancienne = imputations.body.find((i) => i.id === premiereImputationId);
+    expect(ancienne.heureFin).not.toBeNull();
   });
 
   test('arrêter le chronomètre renseigne heureFin', async () => {
