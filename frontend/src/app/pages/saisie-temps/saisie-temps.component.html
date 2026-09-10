@@ -150,7 +150,7 @@
                   @if (erreurEdition && editionChamp?.imputationId === imputation.id) {
                     <span class="entries__erreur" data-testid="erreur-edition">{{ erreurEdition }}</span>
                   }
-                  <span class="badge">{{ formatDuree(imputation.heureDebut, imputation.heureFin) }}</span>
+                  <span class="badge">{{ formatDuree(imputation.heureDebut, imputation.heureFin!) }}</span>
                   <button
                     type="button"
                     class="btn btn-secondary entries__relancer"

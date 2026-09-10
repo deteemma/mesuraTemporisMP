@@ -27,10 +27,6 @@ describe('formatMinutesHHMM', () => {
 });
 
 describe('formatDuree', () => {
-  it('retourne "en cours" quand il n\'y a pas d\'heure de fin', () => {
-    expect(formatDuree('2026-01-05T09:00:00.000Z', null)).toBe('en cours');
-  });
-
   it('formate la durée écoulée au format hh:mm zero-paddé', () => {
     expect(formatDuree('2026-01-05T09:00:00.000Z', '2026-01-05T09:05:00.000Z')).toBe('00:05');
   });

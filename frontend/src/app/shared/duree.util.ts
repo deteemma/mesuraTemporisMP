@@ -14,8 +14,7 @@ export function formatMinutesHHMM(totalMinutes: number): string {
   return `${String(heures).padStart(2, '0')}:${String(reste).padStart(2, '0')}`;
 }
 
-export function formatDuree(heureDebut: string, heureFin: string | null): string {
-  if (!heureFin) return 'en cours';
+export function formatDuree(heureDebut: string, heureFin: string): string {
   const minutes = Math.max(0, Math.round((new Date(heureFin).getTime() - new Date(heureDebut).getTime()) / 60000));
   return formatMinutesHHMM(minutes);
 }
