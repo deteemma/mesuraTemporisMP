@@ -31,13 +31,13 @@ export interface SyntheseJournaliereLigne {
   projetNom: string;
   activiteId: string;
   activiteNom: string;
-  dureeMinutes: number;
+  dureeSecondes: number;
 }
 
 export interface SyntheseJournaliere {
   date: string;
   lignes: SyntheseJournaliereLigne[];
-  totalMinutes: number;
+  totalSecondes: number;
 }
 
 export interface RapportLigne {
@@ -48,12 +48,12 @@ export interface RapportLigne {
   activiteId: string;
   activiteNom: string;
   journee: string;
-  dureeMinutes: number;
+  dureeSecondes: number;
 }
 
 export interface Rapport {
   dateDebut: string;
   dateFin: string;
   lignes: RapportLigne[];
-  totalMinutes: number;
+  totalSecondes: number;
 }

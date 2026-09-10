@@ -4,8 +4,8 @@ function journeeDe(date) {
   return date.toISOString().slice(0, 10);
 }
 
-function dureeMinutes(imputation) {
-  return Math.round((imputation.heureFin.getTime() - imputation.heureDebut.getTime()) / 60000);
+function dureeSecondes(imputation) {
+  return Math.round((imputation.heureFin.getTime() - imputation.heureDebut.getTime()) / 1000);
 }
 
 async function chargerImputationsTerminees(filtre) {
@@ -33,16 +33,16 @@ async function calculerSyntheseJournaliere(utilisateurId, date) {
         projetNom: imputation.projetId.nom,
         activiteId: imputation.activiteId._id,
         activiteNom: imputation.activiteId.nom,
-        dureeMinutes: 0,
+        dureeSecondes: 0,
       });
     }
-    groupes.get(cle).dureeMinutes += dureeMinutes(imputation);
+    groupes.get(cle).dureeSecondes += dureeSecondes(imputation);
   }
 
   const lignes = [...groupes.values()];
-  const totalMinutes = lignes.reduce((somme, ligne) => somme + ligne.dureeMinutes, 0);
+  const totalSecondes = lignes.reduce((somme, ligne) => somme + ligne.dureeSecondes, 0);
 
-  return { date, lignes, totalMinutes };
+  return { date, lignes, totalSecondes };
 }
 
 async function calculerRapportPlage({ dateDebut, dateFin, utilisateurId }) {
@@ -69,16 +69,16 @@ async function calculerRapportPlage({ dateDebut, dateFin, utilisateurId }) {
         activiteId: imputation.activiteId._id,
         activiteNom: imputation.activiteId.nom,
         journee,
-        dureeMinutes: 0,
+        dureeSecondes: 0,
       });
     }
-    groupes.get(cle).dureeMinutes += dureeMinutes(imputation);
+    groupes.get(cle).dureeSecondes += dureeSecondes(imputation);
   }
 
   const lignes = [...groupes.values()].sort((a, b) => a.journee.localeCompare(b.journee));
-  const totalMinutes = lignes.reduce((somme, ligne) => somme + ligne.dureeMinutes, 0);
+  const totalSecondes = lignes.reduce((somme, ligne) => somme + ligne.dureeSecondes, 0);
 
-  return { dateDebut, dateFin, lignes, totalMinutes };
+  return { dateDebut, dateFin, lignes, totalSecondes };
 }
 
 module.exports = { calculerSyntheseJournaliere, calculerRapportPlage };

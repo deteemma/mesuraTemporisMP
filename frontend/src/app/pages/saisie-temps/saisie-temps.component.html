@@ -88,7 +88,7 @@
               <span class="groupe__projet">{{ nomProjet(groupe.projetId) }}</span>
             </div>
             <span class="groupe__nombre" data-testid="groupe-nombre">({{ groupe.imputations.length }})</span>
-            <span class="badge groupe__total" data-testid="groupe-total">{{ formatMinutesHHMM(groupe.totalMinutes) }}</span>
+            <span class="badge groupe__total" data-testid="groupe-total">{{ formatSecondesHHMMSS(groupe.totalSecondes) }}</span>
           </button>
 
           @if (groupe.estDeplie) {

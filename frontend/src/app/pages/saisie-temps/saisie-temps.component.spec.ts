@@ -147,18 +147,23 @@ describe('SaisieTempsComponent', () => {
     });
     httpMock.expectOne((req) => req.url === `${API_BASE_URL}/imputations`).flush([]);
 
-    expect(fixture.componentInstance.compteurEnCours).toBe('00:00');
+    expect(fixture.componentInstance.compteurEnCours).toBe('00:00:00');
 
-    (Date.now as jasmine.Spy).and.returnValue(debut + 5 * 60 * 1000);
-    tick(5 * 60 * 1000);
+    (Date.now as jasmine.Spy).and.returnValue(debut + 5 * 1000);
+    tick(5 * 1000);
 
-    expect(fixture.componentInstance.compteurEnCours).toBe('00:05');
+    expect(fixture.componentInstance.compteurEnCours).toBe('00:00:05');
+
+    (Date.now as jasmine.Spy).and.returnValue(debut + 5 * 60 * 1000 + 12 * 1000);
+    tick(5 * 60 * 1000 + 7 * 1000);
+
+    expect(fixture.componentInstance.compteurEnCours).toBe('00:05:12');
 
     fixture.destroy();
     const valeurApresDestruction = fixture.componentInstance.compteurEnCours;
 
     (Date.now as jasmine.Spy).and.returnValue(debut + 10 * 60 * 1000);
-    tick(5 * 60 * 1000);
+    tick(5 * 60 * 1000 - 12 * 1000);
 
     expect(fixture.componentInstance.compteurEnCours).toBe(valeurApresDestruction);
   }));
@@ -206,7 +211,7 @@ describe('SaisieTempsComponent', () => {
       expect(composant.editionChamp).toBeNull();
       expect(composant.erreurEdition).toBeNull();
       // Le groupe correspondant reflète aussi la mise à jour (total recalculé).
-      expect(composant.groupesImputations[0].totalMinutes).toBe(150);
+      expect(composant.groupesImputations[0].totalSecondes).toBe(150 * 60);
     });
 
     it('n\'autorise pas l\'édition sur une Imputation sans heureFin (chrono actif)', () => {
@@ -528,11 +533,11 @@ describe('SaisieTempsComponent', () => {
 
       const groupeP1A1 = composant.groupesImputations.find((g) => g.projetId === 'p1' && g.activiteId === 'a1');
       expect(groupeP1A1?.imputations.length).toBe(2);
-      expect(groupeP1A1?.totalMinutes).toBe(150);
+      expect(groupeP1A1?.totalSecondes).toBe(150 * 60);
 
       const groupeP2A2 = composant.groupesImputations.find((g) => g.projetId === 'p2' && g.activiteId === 'a2');
       expect(groupeP2A2?.imputations.length).toBe(1);
-      expect(groupeP2A2?.totalMinutes).toBe(30);
+      expect(groupeP2A2?.totalSecondes).toBe(30 * 60);
     });
 
     it('calcule un total cumulé non plafonné quand un groupe dépasse 24h', () => {
@@ -544,8 +549,19 @@ describe('SaisieTempsComponent', () => {
       const composant = fixture.componentInstance;
 
       expect(composant.groupesImputations.length).toBe(1);
-      expect(composant.groupesImputations[0].totalMinutes).toBe(30 * 60);
-      expect(composant.formatMinutesHHMM(composant.groupesImputations[0].totalMinutes)).toBe('30:00');
+      expect(composant.groupesImputations[0].totalSecondes).toBe(30 * 3600);
+      expect(composant.formatSecondesHHMMSS(composant.groupesImputations[0].totalSecondes)).toBe('30:00:00');
+    });
+
+    it('un total de groupe composé de durées non multiples de la minute reflète la somme exacte à la seconde', () => {
+      initialiserAvecImputations([
+        { id: 'i1', utilisateurId: 'u1', projetId: 'p1', activiteId: 'a1', heureDebut: '2026-01-05T09:00:00.000Z', heureFin: '2026-01-05T09:00:30.000Z' },
+        { id: 'i2', utilisateurId: 'u1', projetId: 'p1', activiteId: 'a1', heureDebut: '2026-01-05T09:01:00.000Z', heureFin: '2026-01-05T09:01:30.000Z' },
+      ]);
+      const composant = fixture.componentInstance;
+
+      expect(composant.groupesImputations[0].totalSecondes).toBe(60);
+      expect(composant.formatSecondesHHMMSS(composant.groupesImputations[0].totalSecondes)).toBe('00:01:00');
     });
 
     it('les groupes sont repliés par défaut', () => {

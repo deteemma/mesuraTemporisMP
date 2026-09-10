@@ -53,9 +53,9 @@ describe('Synthèse journalière du temps imputé', () => {
       .set('Authorization', `Bearer ${userToken}`);
 
     expect(synthese.status).toBe(200);
-    expect(synthese.body.totalMinutes).toBe(90);
+    expect(synthese.body.totalSecondes).toBe(90 * 60);
     expect(synthese.body.lignes).toHaveLength(1);
-    expect(synthese.body.lignes[0].dureeMinutes).toBe(90);
+    expect(synthese.body.lignes[0].dureeSecondes).toBe(90 * 60);
     expect(synthese.body.lignes[0].projetNom).toBe('Projet Alpha');
     expect(synthese.body.lignes[0].activiteNom).toBe('Développement');
   });

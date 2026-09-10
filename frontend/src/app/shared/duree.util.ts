@@ -3,26 +3,19 @@ export function formatHeure(iso: string): string {
 }
 
 /**
- * Formatte une durée en minutes au format hh:mm, zero-paddé, sans plafond à 24h.
+ * Formatte une durée en secondes au format hh:mm:ss, zero-paddé, sans plafond à 24h.
  * Les Imputations pouvant se chevaucher, un cumul peut légitimement dépasser 24h
- * (ex. 1635 minutes -> "27:15").
+ * (ex. 98115 secondes -> "27:15:15").
  */
-export function formatMinutesHHMM(totalMinutes: number): string {
-  const minutes = Math.max(0, Math.round(totalMinutes));
-  const heures = Math.floor(minutes / 60);
-  const reste = minutes % 60;
-  return `${String(heures).padStart(2, '0')}:${String(reste).padStart(2, '0')}`;
+export function formatSecondesHHMMSS(totalSecondes: number): string {
+  const secondes = Math.max(0, Math.round(totalSecondes));
+  const heures = Math.floor(secondes / 3600);
+  const minutesRestantes = Math.floor((secondes % 3600) / 60);
+  const secondesRestantes = secondes % 60;
+  return `${String(heures).padStart(2, '0')}:${String(minutesRestantes).padStart(2, '0')}:${String(secondesRestantes).padStart(2, '0')}`;
 }
 
 export function formatDuree(heureDebut: string, heureFin: string): string {
-  const minutes = Math.max(0, Math.round((new Date(heureFin).getTime() - new Date(heureDebut).getTime()) / 60000));
-  return formatMinutesHHMM(minutes);
-}
-
-export function formatMinutes(totalMinutes: number): string {
-  const heures = Math.floor(totalMinutes / 60);
-  const reste = totalMinutes % 60;
-  if (heures === 0) return `${reste} min`;
-  if (reste === 0) return `${heures} h`;
-  return `${heures} h ${reste}`;
+  const secondes = Math.max(0, Math.round((new Date(heureFin).getTime() - new Date(heureDebut).getTime()) / 1000));
+  return formatSecondesHHMMSS(secondes);
 }

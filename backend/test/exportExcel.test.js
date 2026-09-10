@@ -53,12 +53,13 @@ describe('Export Excel du rapport', () => {
 
     expect(feuille).toBeDefined();
     const entetes = feuille.getRow(1).values.slice(1);
-    expect(entetes).toEqual(['Utilisateur', 'Projet', 'Activité', 'Journée', 'Durée (minutes)']);
+    expect(entetes).toEqual(['Utilisateur', 'Projet', 'Activité', 'Journée', 'Durée (minutes)', 'Durée (hh:mm:ss)']);
 
     const ligneDonnees = feuille.getRow(2).values.slice(1);
     expect(ligneDonnees[0]).toBe('jdupont');
     expect(ligneDonnees[1]).toBe('Projet Alpha');
     expect(ligneDonnees[2]).toBe('Développement');
     expect(ligneDonnees[4]).toBe(60);
+    expect(ligneDonnees[5]).toBe('01:00:00');
   });
 });

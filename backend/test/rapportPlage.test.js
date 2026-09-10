@@ -67,7 +67,7 @@ describe('Rapport de synthèse sur une plage de dates', () => {
 
     expect(rapport.status).toBe(200);
     expect(rapport.body.lignes).toHaveLength(2);
-    expect(rapport.body.totalMinutes).toBe(150);
+    expect(rapport.body.totalSecondes).toBe(150 * 60);
     expect(rapport.body.lignes.every((ligne) => ligne.utilisateurLogin === 'jdupont')).toBe(true);
   });
 
@@ -83,7 +83,7 @@ describe('Rapport de synthèse sur une plage de dates', () => {
 
     expect(rapport.status).toBe(200);
     expect(rapport.body.lignes).toHaveLength(3);
-    expect(rapport.body.totalMinutes).toBe(210);
+    expect(rapport.body.totalSecondes).toBe(210 * 60);
   });
 
   test('une plage d\'une seule journée fonctionne comme cas particulier', async () => {
@@ -98,6 +98,53 @@ describe('Rapport de synthèse sur une plage de dates', () => {
 
     expect(rapport.status).toBe(200);
     expect(rapport.body.lignes).toHaveLength(2);
-    expect(rapport.body.totalMinutes).toBe(120);
+    expect(rapport.body.totalSecondes).toBe(120 * 60);
+  });
+
+  test('l\'agrégation ne perd pas de précision quand les durées ne sont pas des multiples exacts de la minute', async () => {
+    const app = await demarrerAppEtBootstrap();
+    const { token: adminToken } = await connecterAdmin(app);
+    const { token: token1, id: utilisateurId1 } = await creerEtConnecterUtilisateur(app, adminToken, 'jdupont');
+
+    const projet = await request(app)
+      .post('/api/projets')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ nom: 'Projet Beta' });
+    await request(app)
+      .post(`/api/projets/${projet.body.id}/utilisateurs`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ utilisateurId: utilisateurId1 });
+
+    const activite = await request(app)
+      .post(`/api/projets/${projet.body.id}/activites`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ nom: 'Support' });
+
+    await request(app)
+      .post('/api/imputations')
+      .set('Authorization', `Bearer ${token1}`)
+      .send({
+        projetId: projet.body.id,
+        activiteId: activite.body.id,
+        heureDebut: '2026-01-10T09:00:00.000Z',
+        heureFin: '2026-01-10T09:00:30.000Z',
+      });
+    await request(app)
+      .post('/api/imputations')
+      .set('Authorization', `Bearer ${token1}`)
+      .send({
+        projetId: projet.body.id,
+        activiteId: activite.body.id,
+        heureDebut: '2026-01-10T10:00:00.000Z',
+        heureFin: '2026-01-10T10:00:30.000Z',
+      });
+
+    const rapport = await request(app)
+      .get('/api/rapports/plage')
+      .query({ dateDebut: '2026-01-01', dateFin: '2026-01-31' })
+      .set('Authorization', `Bearer ${token1}`);
+
+    expect(rapport.status).toBe(200);
+    expect(rapport.body.totalSecondes).toBe(60);
   });
 });

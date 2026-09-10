@@ -41,14 +41,19 @@ describe('RapportComponent', () => {
           activiteId: 'a1',
           activiteNom: 'Développement',
           journee: '2026-01-05',
-          dureeMinutes: 60,
+          dureeSecondes: 3600,
         },
       ],
-      totalMinutes: 60,
+      totalSecondes: 3600,
     });
 
     expect(fixture.componentInstance.rapport?.lignes.length).toBe(1);
-    expect(fixture.componentInstance.rapport?.totalMinutes).toBe(60);
+    expect(fixture.componentInstance.rapport?.totalSecondes).toBe(3600);
+
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[data-testid="rapport-total"]').previousElementSibling.textContent).toContain(
+      '01:00:00',
+    );
   });
 
   it('déclenche l\'export Excel avec la même plage de dates', () => {

@@ -27,3 +27,7 @@ _Avoid_: Saisie de temps, entrée de temps
 **Scission** (d'une Imputation):
 Le découpage automatique d'une Imputation en deux lorsqu'une modification de son heure de début ou de fin la ferait franchir minuit. L'Imputation d'origine est tronquée à minuit ; une nouvelle Imputation est créée à minuit, pour le même Utilisateur/Projet/Activité, avec l'heure visée par la modification. Opération atomique côté serveur (les deux écritures réussissent ou échouent ensemble).
 _Avoid_: Split, découpage
+
+**Durée** (d'une Imputation):
+Le temps écoulé entre l'heure de début et l'heure de fin d'une Imputation. Sa précision reflète la façon dont l'Imputation a été capturée : à la seconde exacte pour une Imputation démarrée/arrêtée via chronomètre, à la minute (secondes à zéro) pour une Imputation saisie ou éditée manuellement.
+_Avoid_: Temps imputé, temps passé, durée écoulée

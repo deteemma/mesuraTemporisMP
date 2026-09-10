@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Rapport, RapportLigne } from '../../models/imputation';
 import { RapportService } from '../../services/rapport.service';
-import { formatMinutes } from '../../shared/duree.util';
+import { formatSecondesHHMMSS } from '../../shared/duree.util';
 
 export interface GroupeJour {
   journee: string;
   lignes: RapportLigne[];
-  totalMinutes: number;
+  totalSecondes: number;
 }
 
 @Component({
@@ -22,7 +22,7 @@ export class RapportComponent {
   dateFin = '';
   rapport: Rapport | null = null;
 
-  formatMinutes = formatMinutes;
+  formatSecondesHHMMSS = formatSecondesHHMMSS;
 
   constructor(private rapportService: RapportService) {}
 
@@ -39,7 +39,7 @@ export class RapportComponent {
       .map(([journee, lignes]) => ({
         journee,
         lignes,
-        totalMinutes: lignes.reduce((somme, ligne) => somme + ligne.dureeMinutes, 0),
+        totalSecondes: lignes.reduce((somme, ligne) => somme + ligne.dureeSecondes, 0),
       }));
   }
 

@@ -8,7 +8,7 @@ import { ActiviteService } from '../../services/activite.service';
 import { ImputationService } from '../../services/imputation.service';
 import { ProjetService } from '../../services/projet.service';
 import { NotificationService } from '../../shared/notification.service';
-import { formatDuree, formatHeure, formatMinutesHHMM } from '../../shared/duree.util';
+import { formatDuree, formatHeure, formatSecondesHHMMSS } from '../../shared/duree.util';
 
 const INTERVALLE_COMPTEUR_MS = 1000;
 
@@ -23,7 +23,7 @@ export interface GroupeImputations {
   projetId: string;
   activiteId: string;
   imputations: Imputation[];
-  totalMinutes: number;
+  totalSecondes: number;
   estDeplie: boolean;
 }
 
@@ -40,7 +40,7 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
   chronoActif: Imputation | null = null;
   imputationsDuJour: Imputation[] = [];
   groupesImputations: GroupeImputations[] = [];
-  compteurEnCours = '00:00';
+  compteurEnCours = '00:00:00';
 
   projetChoisi = '';
   activiteChoisie = '';
@@ -58,7 +58,7 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
 
   formatHeure = formatHeure;
   formatDuree = formatDuree;
-  formatMinutesHHMM = formatMinutesHHMM;
+  formatSecondesHHMMSS = formatSecondesHHMMSS;
 
   private capNomsActivites: Record<string, string> = {};
   private abonnementCompteur: Subscription | null = null;
@@ -98,7 +98,7 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
   private gererCompteurChronoActif(): void {
     this.arreterCompteur();
     if (!this.chronoActif) {
-      this.compteurEnCours = '00:00';
+      this.compteurEnCours = '00:00:00';
       return;
     }
     this.mettreAJourCompteur();
@@ -107,8 +107,8 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
 
   private mettreAJourCompteur(): void {
     if (!this.chronoActif) return;
-    const minutesEcoulees = (Date.now() - new Date(this.chronoActif.heureDebut).getTime()) / 60000;
-    this.compteurEnCours = formatMinutesHHMM(minutesEcoulees);
+    const secondesEcoulees = Math.floor((Date.now() - new Date(this.chronoActif.heureDebut).getTime()) / 1000);
+    this.compteurEnCours = formatSecondesHHMMSS(secondesEcoulees);
   }
 
   private arreterCompteur(): void {
@@ -143,11 +143,11 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
         const estDeplie = this.groupesImputations.find(
           (g) => this.cleGroupe(g.projetId, g.activiteId) === cle,
         )?.estDeplie ?? false;
-        groupe = { projetId: imputation.projetId, activiteId: imputation.activiteId, imputations: [], totalMinutes: 0, estDeplie };
+        groupe = { projetId: imputation.projetId, activiteId: imputation.activiteId, imputations: [], totalSecondes: 0, estDeplie };
         groupesParCle.set(cle, groupe);
       }
       groupe.imputations.push(imputation);
-      groupe.totalMinutes += this.minutesImputation(imputation);
+      groupe.totalSecondes += this.secondesImputation(imputation);
     }
 
     return [...groupesParCle.values()].sort(
@@ -159,8 +159,10 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
     return `${projetId}::${activiteId}`;
   }
 
-  private minutesImputation(imputation: Imputation): number {
-    return (new Date(imputation.heureFin as string).getTime() - new Date(imputation.heureDebut).getTime()) / 60000;
+  private secondesImputation(imputation: Imputation): number {
+    return Math.round(
+      (new Date(imputation.heureFin as string).getTime() - new Date(imputation.heureDebut).getTime()) / 1000,
+    );
   }
 
   private heureDebutLaPlusAncienne(groupe: GroupeImputations): Date {

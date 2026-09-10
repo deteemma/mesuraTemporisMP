@@ -19,7 +19,7 @@
   @if (rapport) {
     <div class="stat-row">
       <div class="stat-row__item">
-        <span class="stat-row__valeur">{{ formatMinutes(rapport.totalMinutes) }}</span>
+        <span class="stat-row__valeur">{{ formatSecondesHHMMSS(rapport.totalSecondes) }}</span>
         <span class="stat-row__label" data-testid="rapport-total">sur la période</span>
       </div>
     </div>
@@ -28,7 +28,7 @@
       <section class="card jour">
         <div class="jour__entete">
           <h2 class="jour__titre">{{ groupe.journee }}</h2>
-          <span class="badge">{{ formatMinutes(groupe.totalMinutes) }}</span>
+          <span class="badge">{{ formatSecondesHHMMSS(groupe.totalSecondes) }}</span>
         </div>
         <ul class="resource-list">
           @for (ligne of groupe.lignes; track ligne.utilisateurId + ligne.projetId + ligne.activiteId) {
@@ -37,7 +37,7 @@
                 <div class="resource-list__nom">{{ ligne.activiteNom }}</div>
                 <div class="resource-list__meta">{{ ligne.projetNom }} · {{ ligne.utilisateurLogin }}</div>
               </div>
-              <span class="badge resource-list__actions">{{ formatMinutes(ligne.dureeMinutes) }}</span>
+              <span class="badge resource-list__actions">{{ formatSecondesHHMMSS(ligne.dureeSecondes) }}</span>
             </li>
           }
         </ul>
