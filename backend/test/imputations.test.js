@@ -315,4 +315,42 @@ describe('Saisie manuelle et modification/suppression d\'une Imputation', () => 
       .set('Authorization', `Bearer ${userToken2}`);
     expect(suppression.status).toBe(403);
   });
+
+  test('un Utilisateur ne peut pas déclencher de Scission sur l\'Imputation d\'un autre Utilisateur', async () => {
+    const app = await demarrerAppEtBootstrap();
+    const { token: adminToken } = await connecterAdmin(app);
+    const { token: userToken1, id: utilisateurId1 } = await creerEtConnecterUtilisateur(app, adminToken, 'jdupont');
+    const { token: userToken2 } = await creerEtConnecterUtilisateur(app, adminToken, 'amartin');
+    const { projetId, activiteId } = await creerProjetActiviteAffectes(app, adminToken, utilisateurId1);
+
+    const imputation = await request(app)
+      .post('/api/imputations')
+      .set('Authorization', `Bearer ${userToken1}`)
+      .send({
+        projetId,
+        activiteId,
+        heureDebut: '2026-01-05T09:00:00.000Z',
+        heureFin: '2026-01-05T10:00:00.000Z',
+      });
+
+    const modification = await request(app)
+      .patch(`/api/imputations/${imputation.body.id}`)
+      .set('Authorization', `Bearer ${userToken2}`)
+      .send({ heureFin: '2026-01-05T08:00:00.000Z' });
+    expect(modification.status).toBe(403);
+
+    // Ni scission ni mutation : l'Imputation d'origine est inchangée, et rien n'a été créé le lendemain.
+    const relectureJourOrigine = await request(app)
+      .get('/api/imputations')
+      .set('Authorization', `Bearer ${userToken1}`)
+      .query({ date: '2026-01-05' });
+    const imputationInchangee = relectureJourOrigine.body.find((i) => i.id === imputation.body.id);
+    expect(imputationInchangee.heureFin).toBe('2026-01-05T10:00:00.000Z');
+
+    const relectureLendemain = await request(app)
+      .get('/api/imputations')
+      .set('Authorization', `Bearer ${userToken1}`)
+      .query({ date: '2026-01-06' });
+    expect(relectureLendemain.body).toHaveLength(0);
+  });
 });
