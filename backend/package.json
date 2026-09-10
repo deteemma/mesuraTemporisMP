@@ -6,6 +6,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
+    "dev": "node dev-server.js",
     "test": "jest --runInBand"
   },
   "dependencies": {
