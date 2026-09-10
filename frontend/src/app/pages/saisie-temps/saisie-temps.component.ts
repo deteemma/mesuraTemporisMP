@@ -107,6 +107,8 @@ export class SaisieTempsComponent implements OnInit, OnDestroy {
 
   private mettreAJourCompteur(): void {
     if (!this.chronoActif) return;
+    // Math.floor (pas Math.round comme secondesImputation, sur un intervalle figé) : une horloge qui
+    // tourne ne doit jamais afficher une seconde en avance sur le temps réellement écoulé.
     const secondesEcoulees = Math.floor((Date.now() - new Date(this.chronoActif.heureDebut).getTime()) / 1000);
     this.compteurEnCours = formatSecondesHHMMSS(secondesEcoulees);
   }
